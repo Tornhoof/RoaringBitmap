@@ -17,7 +17,7 @@ Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitm
 
 # Performance
 As this is a fairly direct port of the Java library the performance is comparable, on average around 10-20% slower, probably because C# has no popcnt intrinsic and due to the Immutable datastructure overhead.
-It also depends heavily on the system used, on a Intel XEON W3550 the .NET code was actually a tad faster. I imagine that the JVM is better optimized as the new RyuJIT compiler has rather meager optimization support for e.g. loop unrolling.
+It also depends heavily on the system used, on a Intel XEON W3550 the .NET code was actually a tad faster.
 The iterator is several times slower than its Java pendant, I do not yet know why.
 The RoaringBitmap.Benchmark project contains microbenchmarks for the real-roaring-data set. This set is also used by the Unit Tests.
 
