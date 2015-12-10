@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{E3EBDDCA-BB6B-48B5-B00A-CF60B5FA4BFB}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RoaringBitmap.Benchmark</RootNamespace>
+    <AssemblyName>RoaringBitmap.Benchmark</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BenchmarkDotNet, Version=0.7.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BenchmarkDotNet.0.7.8\lib\net40\BenchmarkDotNet.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="DataSets.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmark.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkCensus1881.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkCensus1881Srt.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkCensusIncome.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkCensusIncomeSrt.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkDimension003.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkDimension008.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkDimension033.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkUsCensus2000.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkWeatherSept85.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkWeatherSept85Srt.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkWikileaksNoQuotes.cs" />
+    <Compile Include="MicroBenchmarks\MicroBenchmarkWikileaksNoQuotesSrt.cs" />
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZipRealDataProvider.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\real-roaring-dataset\census-income.zip">
+      <Link>Data\census-income.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\census-income_srt.zip">
+      <Link>Data\census-income_srt.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\census1881.zip">
+      <Link>Data\census1881.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\census1881_srt.zip">
+      <Link>Data\census1881_srt.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\dimension_003.zip">
+      <Link>Data\dimension_003.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\dimension_008.zip">
+      <Link>Data\dimension_008.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\dimension_033.zip">
+      <Link>Data\dimension_033.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\uscensus2000.zip">
+      <Link>Data\uscensus2000.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\weather_sept_85.zip">
+      <Link>Data\weather_sept_85.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\weather_sept_85_srt.zip">
+      <Link>Data\weather_sept_85_srt.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\wikileaks-noquotes.zip">
+      <Link>Data\wikileaks-noquotes.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\real-roaring-dataset\wikileaks-noquotes_srt.zip">
+      <Link>Data\wikileaks-noquotes_srt.zip</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RoaringBitmap\RoaringBitmap.csproj">
+      <Project>{2ee1be04-a8f5-4358-bf08-e417d3916b49}</Project>
+      <Name>RoaringBitmap</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
