@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RoaringBitmap
 {
@@ -7,9 +6,9 @@ namespace RoaringBitmap
     {
         public static int MaxSize = 4096; // everything <= is an ArrayContainer
 
-        public abstract IEnumerator<ushort> GetEnumerator();
-
         protected internal abstract int Cardinality { get; }
+
+        public abstract IEnumerator<ushort> GetEnumerator();
 
         public static Container operator |(Container x, Container y)
         {

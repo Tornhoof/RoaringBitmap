@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RoaringBitmap
 {
     public class ArrayContainer : Container, IEquatable<ArrayContainer>
     {
         public static readonly ArrayContainer One;
+        public static readonly ArrayContainer Zero;
         private readonly int m_Cardinality;
         private readonly ushort[] m_Content;
 
@@ -18,6 +18,13 @@ namespace RoaringBitmap
                 data[i] = i;
             }
             One = new ArrayContainer(MaxSize, data);
+            Zero = new ArrayContainer(0);
+        }
+
+        private ArrayContainer(int cardinality)
+        {
+           m_Content = new ushort[cardinality];
+            m_Cardinality = cardinality;
         }
 
         private ArrayContainer(int cardinality, Func<ushort[], int> functor)
@@ -63,9 +70,9 @@ namespace RoaringBitmap
             return true;
         }
 
-        internal static ArrayContainer Create(ICollection<ushort> values)
+        internal static ArrayContainer Create(ushort[] values)
         {
-            return new ArrayContainer(values.Count, values.ToArray());
+            return new ArrayContainer(values.Length, values);
         }
 
         internal static ArrayContainer Create(int cardinality, BitmapContainer bc)

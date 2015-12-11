@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace RoaringBitmap
 {
@@ -11,7 +10,6 @@ namespace RoaringBitmap
         private readonly ushort[] m_Keys;
         private readonly int m_Size;
         private readonly Container[] m_Values;
-        private readonly int m_Cardinality;
 
         // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
@@ -27,11 +25,11 @@ namespace RoaringBitmap
                 Debug.Assert(containers != null);
                 m_Keys[i] = containers[i].Item1;
                 m_Values[i] = containers[i].Item2;
-                m_Cardinality += m_Values[i].Cardinality;
+                Cardinality += m_Values[i].Cardinality;
             }
         }
 
-        public int Cardinality => m_Cardinality;
+        public int Cardinality { get; }
 
         public IEnumerator<int> GetEnumerator()
         {
@@ -274,10 +272,7 @@ namespace RoaringBitmap
                 else
                 {
                     var c = ~x.m_Values[index];
-                    if (c.Cardinality > 0)
-                    {
-                        list.Add(new Tuple<ushort, Container>(i, c));
-                    }
+                    list.Add(c.Cardinality > 0 ? new Tuple<ushort, Container>(i, c) : new Tuple<ushort, Container>(i, BitmapContainer.Zero));
                 }
             }
             return new RoaringArray(list);

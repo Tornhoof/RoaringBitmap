@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -8,6 +7,7 @@ namespace RoaringBitmap
     public class BitmapContainer : Container, IEquatable<BitmapContainer>
     {
         public static readonly BitmapContainer One;
+        public static readonly BitmapContainer Zero;
         private readonly ulong[] m_Bitmap;
         private readonly int m_Cardinality;
 
@@ -19,6 +19,7 @@ namespace RoaringBitmap
                 data[i] = ulong.MaxValue;
             }
             One = new BitmapContainer(1 << 16, data);
+            Zero = new BitmapContainer(0);
         }
 
         private BitmapContainer(int cardinality)
@@ -33,7 +34,7 @@ namespace RoaringBitmap
             m_Cardinality = cardinality;
         }
 
-        private BitmapContainer(int cardinality, ICollection<ushort> values, bool negated) : this(cardinality)
+        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(cardinality)
         {
             if (negated)
             {
@@ -55,7 +56,7 @@ namespace RoaringBitmap
             }
         }
 
-        private BitmapContainer(ICollection<ushort> values, bool negated) : this(negated ? ushort.MaxValue - values.Count : values.Count, values, negated)
+        private BitmapContainer(ushort[] values, bool negated) : this(negated ? ushort.MaxValue - values.Length : values.Length, values, negated)
         {
         }
 
@@ -90,12 +91,12 @@ namespace RoaringBitmap
         }
 
 
-        internal static BitmapContainer Create(ICollection<ushort> values, bool negated)
+        internal static BitmapContainer Create(ushort[] values, bool negated)
         {
             return new BitmapContainer(values, negated);
         }
 
-        internal static BitmapContainer Create(int cardinality, ICollection<ushort> values)
+        internal static BitmapContainer Create(int cardinality, ushort[] values)
         {
             return new BitmapContainer(cardinality, values, false);
         }
@@ -127,10 +128,11 @@ namespace RoaringBitmap
         /// </summary>
         public static Container operator &(BitmapContainer x, BitmapContainer y)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = (ulong[])x.m_Bitmap.Clone();
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
+
 
         public static ArrayContainer operator &(BitmapContainer x, ArrayContainer y)
         {
@@ -283,69 +285,6 @@ namespace RoaringBitmap
                 code <<= 3;
             }
             return (int)((code & 0xFFFFFFFF) >> 32);
-        }
-
-        private class BitmapContainerEnumerator : IEnumerator<ushort>
-        {
-            private readonly ulong[] m_Bitmap;
-            private ulong m_BitSet;
-            private int m_Index;
-
-            public BitmapContainerEnumerator(ulong[] bitmap)
-            {
-                m_Bitmap = bitmap;
-                FindFirst();
-            }
-
-            public void Dispose()
-            {
-                GC.SuppressFinalize(this);
-            }
-
-            public bool MoveNext()
-            {
-                return m_Index < m_Bitmap.Length;
-            }
-
-            public void Reset()
-            {
-                FindFirst();
-            }
-
-            public ushort Current
-            {
-                get
-                {
-                    var t = m_BitSet & (~m_BitSet + 1);
-                    var answer = (ushort) (m_Index << 6 + Util.BitCount(t - 1));
-                    m_BitSet ^= t;
-                    while (m_BitSet == 0)
-                    {
-                        m_Index++;
-                        if (m_Index == m_Bitmap.Length)
-                        {
-                            break;
-                        }
-                        m_BitSet = m_Bitmap[m_Index];
-                    }
-                    return answer;
-                }
-            }
-
-            object IEnumerator.Current => Current;
-
-            private void FindFirst()
-            {
-                for (var i = 0; i < m_Bitmap.Length; i++)
-                {
-                    if (m_Bitmap[i] != 0)
-                    {
-                        m_BitSet = m_Bitmap[i];
-                        m_Index = i;
-                        break;
-                    }
-                }
-            }
         }
     }
 }

@@ -46,8 +46,8 @@ namespace RoaringBitmap
             foreach (var group in groupbyHb)
             {
                 list.Add(@group.Count() > Container.MaxSize
-                             ? new Tuple<ushort, Container>(@group.Key, BitmapContainer.Create(@group.Select(Util.LowBits).ToList(), false))
-                             : new Tuple<ushort, Container>(@group.Key, ArrayContainer.Create(@group.Select(Util.LowBits).ToList())));
+                             ? new Tuple<ushort, Container>(@group.Key, BitmapContainer.Create(@group.Select(Util.LowBits).ToArray(), false))
+                             : new Tuple<ushort, Container>(@group.Key, ArrayContainer.Create(@group.Select(Util.LowBits).ToArray())));
             }
             return new RoaringBitmap(new RoaringArray(list));
         }
