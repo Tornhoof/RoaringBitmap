@@ -128,11 +128,17 @@ namespace RoaringBitmap
         /// </summary>
         public static Container operator &(BitmapContainer x, BitmapContainer y)
         {
-            var data = (ulong[])x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
             return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
+        private static ulong[] Clone(ulong[] data)
+        {
+            var result = new ulong[data.Length];
+            Buffer.BlockCopy(data, 0, result, 0, data.Length*sizeof(ulong));
+            return result;
+        }
 
         public static ArrayContainer operator &(BitmapContainer x, ArrayContainer y)
         {
@@ -141,19 +147,19 @@ namespace RoaringBitmap
 
         public static BitmapContainer operator |(BitmapContainer x, BitmapContainer y)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             return new BitmapContainer(OrInternal(data, y.m_Bitmap), data);
         }
 
         public static BitmapContainer operator |(BitmapContainer x, ArrayContainer y)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             return new BitmapContainer(x.m_Cardinality + y.OrArray(data), data);
         }
 
         public static Container operator ~(BitmapContainer x)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(NotInternal(data), data);
             return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
@@ -163,7 +169,7 @@ namespace RoaringBitmap
         /// </summary>
         public static Container operator ^(BitmapContainer x, BitmapContainer y)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
             return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
@@ -171,7 +177,7 @@ namespace RoaringBitmap
 
         public static Container operator ^(BitmapContainer x, ArrayContainer y)
         {
-            var data = (ulong[]) x.m_Bitmap.Clone();
+            var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.XorArray(data), data);
             return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }

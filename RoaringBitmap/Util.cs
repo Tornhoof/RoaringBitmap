@@ -21,18 +21,24 @@ namespace RoaringBitmap
             return (int) ((x * 0x0101010101010101UL) >> 56); //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void ArrayCopy(ushort[] input, int iStart, ushort[] output, int oStart, int length)
+        {
+            Buffer.BlockCopy(input, iStart*sizeof(ushort), output, oStart*sizeof(ushort), length*sizeof(ushort));
+        }
+
         public static int UnionArrays(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
             var pos = 0;
             int k1 = 0, k2 = 0;
             if (0 == length2)
             {
-                Array.Copy(set1, 0, buffer, 0, length1);
+                ArrayCopy(set1, 0, buffer, 0, length1);
                 return length1;
             }
             if (0 == length1)
             {
-                Array.Copy(set2, 0, buffer, 0, length2);
+                ArrayCopy(set2, 0, buffer, 0, length2);
                 return length2;
             }
             var s1 = set1[k1];
@@ -47,7 +53,7 @@ namespace RoaringBitmap
                     ++k1;
                     if (k1 >= length1)
                     {
-                        Array.Copy(set2, k2, buffer, pos, length2 - k2);
+                        ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
                     s1 = set1[k1];
@@ -59,12 +65,12 @@ namespace RoaringBitmap
                     ++k2;
                     if (k1 >= length1)
                     {
-                        Array.Copy(set2, k2, buffer, pos, length2 - k2);
+                        ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
                     if (k2 >= length2)
                     {
-                        Array.Copy(set1, k1, buffer, pos, length1 - k1);
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
                     s1 = set1[k1];
@@ -76,7 +82,7 @@ namespace RoaringBitmap
                     ++k2;
                     if (k2 >= length2)
                     {
-                        Array.Copy(set1, k1, buffer, pos, length1 - k1);
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
                     s2 = set2[k2];
@@ -245,12 +251,12 @@ namespace RoaringBitmap
             int k1 = 0, k2 = 0;
             if (0 == length2)
             {
-                Array.Copy(set1, 0, buffer, 0, length1);
+                ArrayCopy(set1, 0, buffer, 0, length1);
                 return length1;
             }
             if (0 == length1)
             {
-                Array.Copy(set2, 0, buffer, 0, length2);
+                ArrayCopy(set2, 0, buffer, 0, length2);
                 return length2;
             }
             var s1 = set1[k1];
@@ -263,7 +269,7 @@ namespace RoaringBitmap
                     ++k1;
                     if (k1 >= length1)
                     {
-                        Array.Copy(set2, k2, buffer, pos, length2 - k2);
+                        ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
                     s1 = set1[k1];
@@ -274,12 +280,12 @@ namespace RoaringBitmap
                     ++k2;
                     if (k1 >= length1)
                     {
-                        Array.Copy(set2, k2, buffer, pos, length2 - k2);
+                        ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
                     if (k2 >= length2)
                     {
-                        Array.Copy(set1, k1, buffer, pos, length1 - k1);
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
                     s1 = set1[k1];
@@ -291,7 +297,7 @@ namespace RoaringBitmap
                     ++k2;
                     if (k2 >= length2)
                     {
-                        Array.Copy(set1, k1, buffer, pos, length1 - k1);
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
                     s2 = set2[k2];
