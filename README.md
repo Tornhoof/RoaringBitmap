@@ -21,17 +21,19 @@ It also depends heavily on the system used, on a Intel XEON W3550 the .NET code 
 The iterator is several times slower than its Java pendant, I do not yet know why.
 The RoaringBitmap.Benchmark project contains microbenchmarks for the real-roaring-data set. This set is also used by the Unit Tests.
 
+// ***** Competition: Finish  *****
+
 ```ini
 BenchmarkDotNet=v0.7.8.0
 OS=Microsoft Windows NT 6.2.9200.0
 Processor=Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz, ProcessorCount=8
 HostCLR=MS.NET 4.0.30319.42000, Arch=64-bit  [RyuJIT]
-Type=MicroBenchmarkCensusIncome  Mode=Throughput  Platform=HostPlatform  Jit=HostJit  .NET=HostFramework  
+Type=MicroBenchmarkCensusIncome  Mode=Throughput  Platform=HostPlatform  Jit=HostJit  .NET=HostFramework
 ```
 
   Method |    AvrTime |    StdDev |   op/s |
 -------- |----------- |---------- |------- |
-     And |  2.7200 ms | 0.0094 ms | 367.65 |
- Iterate | 93.8802 ms | 0.7333 ms |  10.65 |
-      Or |  2.7114 ms | 0.0198 ms | 368.82 |
-     Xor |  2.4673 ms | 0.0145 ms | 405.30 |
+     And |  2.3016 ms | 0.0059 ms | 434.47 |
+ Iterate | 91.4623 ms | 0.1981 ms |  10.93 |
+      Or |  2.7178 ms | 0.0109 ms | 367.95 |
+     Xor |  2.3377 ms | 0.0114 ms | 427.78 |

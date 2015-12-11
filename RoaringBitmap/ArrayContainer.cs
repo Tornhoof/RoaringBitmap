@@ -20,12 +20,6 @@ namespace RoaringBitmap
             One = new ArrayContainer(MaxSize, data);
         }
 
-        private ArrayContainer(int cardinality, IEnumerable<ushort> values)
-        {
-            m_Content = values.ToArray();
-            m_Cardinality = cardinality;
-        }
-
         private ArrayContainer(int cardinality, Func<ushort[], int> functor)
         {
             m_Content = new ushort[cardinality];
@@ -71,12 +65,12 @@ namespace RoaringBitmap
 
         internal static ArrayContainer Create(ICollection<ushort> values)
         {
-            return new ArrayContainer(values.Count, values);
+            return new ArrayContainer(values.Count, values.ToArray());
         }
 
-        internal static ArrayContainer Create(int cardinality, IEnumerable<ushort> values)
+        internal static ArrayContainer Create(int cardinality, BitmapContainer bc)
         {
-            return new ArrayContainer(cardinality, values);
+            return new ArrayContainer(cardinality, bc.FillArray);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -120,7 +114,7 @@ namespace RoaringBitmap
                 {
                     return BitmapContainer.Create(calcCardinality, output);
                 }
-                return Create(calcCardinality, output);
+                return new ArrayContainer(calcCardinality, output);
             }
             var desiredCapacity = totalCardinality;
             return new ArrayContainer(desiredCapacity, buffer => Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
@@ -144,7 +138,7 @@ namespace RoaringBitmap
                 var bc = BitmapContainer.CreateXor(x.m_Content, x.Cardinality, y.m_Content, y.Cardinality);
                 if (bc.Cardinality <= MaxSize)
                 {
-                    return new ArrayContainer(bc.Cardinality, bc);
+                    return new ArrayContainer(bc.Cardinality, bc.FillArray);
                 }
             }
             var desiredCapacity = totalCardinality;

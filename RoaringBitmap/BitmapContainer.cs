@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
@@ -118,15 +119,17 @@ namespace RoaringBitmap
             {
                 cardinality += Util.BitCount(data[i]);
             }
-            var bc = new BitmapContainer(cardinality, data);
-            return bc;
+            return new BitmapContainer(cardinality, data);
         }
 
+        /// <summary>
+        /// Java version has an optimized version of this, but it's using bitcount internally which should make it slower in .NET
+        /// </summary>
         public static Container operator &(BitmapContainer x, BitmapContainer y)
         {
             var data = (ulong[]) x.m_Bitmap.Clone();
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality < MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
         public static ArrayContainer operator &(BitmapContainer x, ArrayContainer y)
@@ -140,25 +143,27 @@ namespace RoaringBitmap
             return new BitmapContainer(OrInternal(data, y.m_Bitmap), data);
         }
 
-        public static Container operator |(BitmapContainer x, ArrayContainer y)
+        public static BitmapContainer operator |(BitmapContainer x, ArrayContainer y)
         {
             var data = (ulong[]) x.m_Bitmap.Clone();
-            var bc = new BitmapContainer(x.m_Cardinality + y.OrArray(data), data);
-            return bc.m_Cardinality < MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return new BitmapContainer(x.m_Cardinality + y.OrArray(data), data);
         }
 
         public static Container operator ~(BitmapContainer x)
         {
             var data = (ulong[]) x.m_Bitmap.Clone();
             var bc = new BitmapContainer(NotInternal(data), data);
-            return bc.m_Cardinality < MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
+        /// <summary>
+        /// Java version has an optimized version of this, but it's using bitcount internally which should make it slower in .NET
+        /// </summary>
         public static Container operator ^(BitmapContainer x, BitmapContainer y)
         {
             var data = (ulong[]) x.m_Bitmap.Clone();
             var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality < MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
 
@@ -166,7 +171,7 @@ namespace RoaringBitmap
         {
             var data = (ulong[]) x.m_Bitmap.Clone();
             var bc = new BitmapContainer(x.m_Cardinality + y.XorArray(data), data);
-            return bc.m_Cardinality < MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
         private static int XorInternal(ulong[] first, ulong[] second)
@@ -205,18 +210,6 @@ namespace RoaringBitmap
             return c;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(ushort x)
-        {
-            return Contains(m_Bitmap, x);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool Contains(ulong[] bitmap, ushort x)
-        {
-            return (bitmap[x >> 6] & (1UL << x)) != 0;
-        }
-
         private static int AndInternal(ulong[] first, ulong[] second)
         {
             var c = 0;
@@ -229,19 +222,49 @@ namespace RoaringBitmap
             return c;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Contains(ushort x)
+        {
+            return Contains(m_Bitmap, x);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool Contains(ulong[] bitmap, ushort x)
+        {
+            return (bitmap[x >> 6] & (1UL << x)) != 0;
+        }
+
         public override IEnumerator<ushort> GetEnumerator()
         {
             for (var k = 0; k < m_Bitmap.Length; k++)
             {
                 var bitset = m_Bitmap[k];
+                var shiftedK = k << 6;
                 while (bitset != 0)
                 {
                     var t = bitset & (~bitset + 1);
-                    var result = (ushort) ((k << 6) + Util.BitCount(t - 1));
+                    var result = (ushort) (shiftedK + Util.BitCount(t - 1));
                     yield return result;
                     bitset ^= t;
                 }
             }
+        }
+
+        internal int FillArray(ushort[] data)
+        {
+            var pos = 0;
+            for (var k = 0; k < m_Bitmap.Length; k++)
+            {
+                var bitset = m_Bitmap[k];
+                var shiftedK = k << 6;
+                while (bitset != 0)
+                {
+                    var t = bitset & (~bitset + 1);
+                    data[pos++] = (ushort)(shiftedK + Util.BitCount(t - 1));
+                    bitset ^= t;
+                }
+            }
+            return m_Cardinality;
         }
 
         public override bool Equals(object obj)
@@ -260,6 +283,69 @@ namespace RoaringBitmap
                 code <<= 3;
             }
             return (int)((code & 0xFFFFFFFF) >> 32);
+        }
+
+        private class BitmapContainerEnumerator : IEnumerator<ushort>
+        {
+            private readonly ulong[] m_Bitmap;
+            private ulong m_BitSet;
+            private int m_Index;
+
+            public BitmapContainerEnumerator(ulong[] bitmap)
+            {
+                m_Bitmap = bitmap;
+                FindFirst();
+            }
+
+            public void Dispose()
+            {
+                GC.SuppressFinalize(this);
+            }
+
+            public bool MoveNext()
+            {
+                return m_Index < m_Bitmap.Length;
+            }
+
+            public void Reset()
+            {
+                FindFirst();
+            }
+
+            public ushort Current
+            {
+                get
+                {
+                    var t = m_BitSet & (~m_BitSet + 1);
+                    var answer = (ushort) (m_Index << 6 + Util.BitCount(t - 1));
+                    m_BitSet ^= t;
+                    while (m_BitSet == 0)
+                    {
+                        m_Index++;
+                        if (m_Index == m_Bitmap.Length)
+                        {
+                            break;
+                        }
+                        m_BitSet = m_Bitmap[m_Index];
+                    }
+                    return answer;
+                }
+            }
+
+            object IEnumerator.Current => Current;
+
+            private void FindFirst()
+            {
+                for (var i = 0; i < m_Bitmap.Length; i++)
+                {
+                    if (m_Bitmap[i] != 0)
+                    {
+                        m_BitSet = m_Bitmap[i];
+                        m_Index = i;
+                        break;
+                    }
+                }
+            }
         }
     }
 }

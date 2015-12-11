@@ -3,20 +3,13 @@ using System.Collections.Generic;
 
 namespace RoaringBitmap
 {
-    public abstract class Container : IEnumerable<ushort>
+    public abstract class Container
     {
         public static int MaxSize = 4096; // everything <= is an ArrayContainer
 
-
-        protected internal abstract int Cardinality { get; }
-
         public abstract IEnumerator<ushort> GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
+        protected internal abstract int Cardinality { get; }
 
         public static Container operator |(Container x, Container y)
         {
