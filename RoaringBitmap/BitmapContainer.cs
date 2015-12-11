@@ -7,7 +7,6 @@ namespace RoaringBitmap
     public class BitmapContainer : Container, IEquatable<BitmapContainer>
     {
         public static readonly BitmapContainer One;
-        public static readonly BitmapContainer Zero;
         private readonly ulong[] m_Bitmap;
         private readonly int m_Cardinality;
 
@@ -19,7 +18,6 @@ namespace RoaringBitmap
                 data[i] = ulong.MaxValue;
             }
             One = new BitmapContainer(1 << 16, data);
-            Zero = new BitmapContainer(0);
         }
 
         private BitmapContainer(int cardinality)
@@ -34,7 +32,7 @@ namespace RoaringBitmap
             m_Cardinality = cardinality;
         }
 
-        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(cardinality)
+        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? ushort.MaxValue - cardinality +1 : cardinality)
         {
             if (negated)
             {
@@ -42,22 +40,20 @@ namespace RoaringBitmap
                 {
                     m_Bitmap[i] = ulong.MaxValue;
                 }
-                foreach (var @ushort in values)
+                for (var i = 0; i < cardinality; i++)
                 {
-                    m_Bitmap[@ushort >> 6] &= ~(1UL << @ushort);
+                    var v = values[i];
+                    m_Bitmap[v >> 6] &= ~(1UL << v);
                 }
             }
             else
             {
-                foreach (var @ushort in values)
+                for (var i = 0; i < cardinality; i++)
                 {
-                    m_Bitmap[@ushort >> 6] |= (1UL << @ushort);
+                    var v = values[i];
+                    m_Bitmap[v >> 6] |= (1UL << v);
                 }
             }
-        }
-
-        private BitmapContainer(ushort[] values, bool negated) : this(negated ? ushort.MaxValue - values.Length : values.Length, values, negated)
-        {
         }
 
         protected internal override int Cardinality => m_Cardinality;
@@ -91,15 +87,21 @@ namespace RoaringBitmap
         }
 
 
-        internal static BitmapContainer Create(ushort[] values, bool negated)
+        internal static BitmapContainer Create(ushort[] values)
         {
-            return new BitmapContainer(values, negated);
+            return new BitmapContainer(values.Length, values, false);
         }
 
         internal static BitmapContainer Create(int cardinality, ushort[] values)
         {
             return new BitmapContainer(cardinality, values, false);
         }
+
+        internal static BitmapContainer Create(int cardinality, ushort[] values, bool negated)
+        {
+            return new BitmapContainer(cardinality, values, negated);
+        }
+
 
         internal static BitmapContainer CreateXor(ushort[] first, int firstCardinality, ushort[] second, int secondCardinality)
         {

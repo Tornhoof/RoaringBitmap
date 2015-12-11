@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using RoaringBitmap.Benchmark;
@@ -37,30 +35,12 @@ namespace RoaringBitmap.Tests
         {
             var bitmaps = m_Fixture.GetBitmaps(name);
             Assert.NotNull(bitmaps);
-            Assert.Equal(value, OrInternal(bitmaps));
-            Benchmark(OrInternal, bitmaps);
-        }
-
-        private void Benchmark(Func<RoaringBitmap[], int> functor, RoaringBitmap[] bitmaps)
-        {
-            var sw = new Stopwatch();
-            sw.Start();
-            for (var i = 0; i < 10; i++)
-            {
-                functor(bitmaps);
-            }
-            sw.Stop();
-            m_OutputHelper.WriteLine($"10 iterations: {sw.Elapsed}");
-        }
-
-        private int OrInternal(RoaringBitmap[] bitmaps)
-        {
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
             {
                 total += (bitmaps[k] | bitmaps[k + 1]).Cardinality;
             }
-            return total;
+            Assert.Equal(value, total);
         }
 
         [Theory]
@@ -80,18 +60,12 @@ namespace RoaringBitmap.Tests
         {
             var bitmaps = m_Fixture.GetBitmaps(name);
             Assert.NotNull(bitmaps);
-            Assert.Equal(value, XorInternal(bitmaps));
-            Benchmark(XorInternal, bitmaps);
-        }
-
-        private int XorInternal(RoaringBitmap[] bitmaps)
-        {
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
             {
                 total += (bitmaps[k] ^ bitmaps[k + 1]).Cardinality;
             }
-            return total;
+            Assert.Equal(value, total);
         }
 
         [Theory]
@@ -111,18 +85,12 @@ namespace RoaringBitmap.Tests
         {
             var bitmaps = m_Fixture.GetBitmaps(name);
             Assert.NotNull(bitmaps);
-            Assert.Equal(value, AndInternal(bitmaps));
-            Benchmark(AndInternal, bitmaps);
-        }
-
-        private int AndInternal(RoaringBitmap[] bitmaps)
-        {
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
             {
                 total += (bitmaps[k] & bitmaps[k + 1]).Cardinality;
             }
-            return total;
+            Assert.Equal(value, total);
         }
 
         [Theory]
@@ -155,6 +123,33 @@ namespace RoaringBitmap.Tests
             }
             Assert.Equal(value, total);
         }
+
+
+        // The Dimension data sets are simply too slow
+        [Theory]
+        [InlineData(DataSets.CensusIncome)]
+        [InlineData(DataSets.Census1881)]
+        //[InlineData(DataSets.Dimension003)]
+        //[InlineData(DataSets.Dimension008)]
+        //[InlineData(DataSets.Dimension033)]
+        [InlineData(DataSets.UsCensus2000)]
+        [InlineData(DataSets.WeatherSept85)]
+        [InlineData(DataSets.WikileaksNoQuotes)]
+        [InlineData(DataSets.CensusIncomeSrt)]
+        [InlineData(DataSets.Census1881Srt)]
+        [InlineData(DataSets.WeatherSept85Srt)]
+        [InlineData(DataSets.WikileaksNoQuotesSrt)]
+        public void Not(string name)
+        {
+            var bitmaps = m_Fixture.GetBitmaps(name);
+            Assert.NotNull(bitmaps);
+            foreach (var roaringBitmap in bitmaps)
+            {
+                var doublenegated = ~~roaringBitmap;
+                Assert.Equal(roaringBitmap, doublenegated);             
+            }
+        }
+
 
         public class BenchmarkTestsFixture
         {

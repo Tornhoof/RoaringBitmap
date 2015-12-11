@@ -271,8 +271,15 @@ namespace RoaringBitmap
                 }
                 else
                 {
-                    var c = ~x.m_Values[index];
-                    list.Add(c.Cardinality > 0 ? new Tuple<ushort, Container>(i, c) : new Tuple<ushort, Container>(i, BitmapContainer.Zero));
+                    var c = x.m_Values[index];
+                    if(!c.Equals(BitmapContainer.One)) // the bitwise negation of the one container is the zero container
+                    {
+                        var nc = ~c;
+                        if (nc.Cardinality > 0) // o
+                        {
+                            list.Add(new Tuple<ushort, Container>(i, nc));
+                        }
+                    }
                 }
             }
             return new RoaringArray(list);

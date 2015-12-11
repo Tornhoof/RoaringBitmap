@@ -5,7 +5,6 @@ namespace RoaringBitmap
 {
     public class ArrayContainer : Container, IEquatable<ArrayContainer>
     {
-        public static readonly ArrayContainer One;
         public static readonly ArrayContainer Zero;
         private readonly int m_Cardinality;
         private readonly ushort[] m_Content;
@@ -17,7 +16,6 @@ namespace RoaringBitmap
             {
                 data[i] = i;
             }
-            One = new ArrayContainer(MaxSize, data);
             Zero = new ArrayContainer(0);
         }
 
@@ -134,7 +132,7 @@ namespace RoaringBitmap
 
         public static Container operator ~(ArrayContainer x)
         {
-            return BitmapContainer.Create(x.m_Content, true); // an arraycontainer only contains up to 4096 values, so the negation is a bitmap container
+            return BitmapContainer.Create(x.m_Cardinality, x.m_Content, true); // an arraycontainer only contains up to 4096 values, so the negation is a bitmap container
         }
 
         public static Container operator ^(ArrayContainer x, ArrayContainer y)
