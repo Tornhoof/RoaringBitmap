@@ -39,17 +39,31 @@ namespace RoaringBitmap
             return m_HighLowContainer.Equals(other.m_HighLowContainer);
         }
 
+        public static RoaringBitmap Create(params int[] values)
+        {
+            return Create(values.AsEnumerable());
+        }
+
         public static RoaringBitmap Create(IEnumerable<int> values)
         {
             var groupbyHb = values.Distinct().OrderBy(t => t).GroupBy(Util.HighBits).OrderBy(t => t.Key).ToList();
-            var list = new List<Tuple<ushort, Container>>();
+            var keys = new List<ushort>();
+            var containers = new List<Container>();
+            var size = 0;
             foreach (var group in groupbyHb)
             {
-                list.Add(@group.Count() > Container.MaxSize
-                             ? new Tuple<ushort, Container>(@group.Key, BitmapContainer.Create(@group.Select(Util.LowBits).ToArray()))
-                             : new Tuple<ushort, Container>(@group.Key, ArrayContainer.Create(@group.Select(Util.LowBits).ToArray())));
+                keys.Add(@group.Key);
+                if (group.Count() > Container.MaxSize)
+                {
+                    containers.Add(BitmapContainer.Create(@group.Select(Util.LowBits).ToArray()));
+                }
+                else
+                {
+                    containers.Add(ArrayContainer.Create(@group.Select(Util.LowBits).ToArray()));
+                }
+                size++;
             }
-            return new RoaringBitmap(new RoaringArray(list));
+            return new RoaringBitmap(new RoaringArray(size, keys, containers));
         }
 
         public static RoaringBitmap operator |(RoaringBitmap x, RoaringBitmap y)
@@ -71,6 +85,11 @@ namespace RoaringBitmap
         public static RoaringBitmap operator ^(RoaringBitmap x, RoaringBitmap y)
         {
             return new RoaringBitmap(x.m_HighLowContainer ^ y.m_HighLowContainer);
+        }
+
+        public static RoaringBitmap AndNot(RoaringBitmap x, RoaringBitmap y)
+        {
+            return new RoaringBitmap(RoaringArray.AndNot(x.m_HighLowContainer, y.m_HighLowContainer));
         }
 
         public override bool Equals(object obj)

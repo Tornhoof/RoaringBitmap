@@ -8,10 +8,12 @@ Target Framework is .NET 4.6
 # What is in it?
 * Immutable data structure using readonly fields and private constructors
 * overloaded operators for AND, OR, NOT and XOR
+* Support for the Set Difference Operator using RoaringBitmap.AndNot
 
 # TODO
 * Serialization
 * Improve memory usage, especially NOT will put objects on the Large Object Heap
+* Nuget Package
 
 # How to use it?
 Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it. See the Unit Tests for examples.
@@ -34,7 +36,8 @@ Type=MicroBenchmarkCensusIncome  Mode=Throughput  Platform=HostPlatform  Jit=Hos
 
   Method |    AvrTime |    StdDev |   op/s |
 -------- |----------- |---------- |------- |
-     And |  2.3016 ms | 0.0059 ms | 434.47 |
- Iterate | 91.4623 ms | 0.1981 ms |  10.93 |
-      Or |  2.7178 ms | 0.0109 ms | 367.95 |
-     Xor |  2.3377 ms | 0.0114 ms | 427.78 |
+     And |  2.2842 ms | 0.0125 ms | 437.79 |
+  AndNot |  2.3849 ms | 0.0135 ms | 419.31 |
+ Iterate | 89.8270 ms | 0.1454 ms |  11.13 |
+      Or |  2.2951 ms | 0.0253 ms | 435.70 |
+     Xor |  2.3010 ms | 0.0175 ms | 434.60 |

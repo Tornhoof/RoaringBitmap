@@ -90,20 +90,77 @@ namespace RoaringBitmap
             }
         }
 
+        public static int DifferenceArrays(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
+        {
+            var pos = 0;
+            int k1 = 0, k2 = 0;
+            if (0 == length2)
+            {
+                ArrayCopy(set1, 0, buffer, 0, length1);
+                return length1;
+            }
+            if (0 == length1)
+            {
+                return 0;
+            }
+            var s1 = set1[k1];
+            var s2 = set2[k2];
+            while (true)
+            {
+                if (s1 < s2)
+                {
+                    buffer[pos++] = s1;
+                    ++k1;
+                    if (k1 >= length1)
+                    {
+                        break;
+                    }
+                    s1 = set1[k1];
+                }
+                else if (s1 == s2)
+                {
+                    ++k1;
+                    ++k2;
+                    if (k1 >= length1)
+                    {
+                        break;
+                    }
+                    if (k2 >= length2)
+                    {
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
+                        return pos + length1 - k1;
+                    }
+                    s1 = set1[k1];
+                    s2 = set2[k2];
+                }
+                else // if (val1>val2)
+                {
+                    ++k2;
+                    if (k2 >= length2)
+                    {
+                        ArrayCopy(set1, k1, buffer, pos, length1 - k1);
+                        return pos + length1 - k1;
+                    }
+                    s2 = set2[k2];
+                }
+            }
+            return pos;
+        }
+
         public static int IntersectArrays(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
             if (set1.Length << 6 < set2.Length)
             {
-                return UnsignedOneSidedGallopingIntersect2By2(set1, length1, set2, length2, buffer);
+                return OneSidedGallopingIntersect2By2(set1, length1, set2, length2, buffer);
             }
             if (set2.Length << 6 < set1.Length)
             {
-                return UnsignedOneSidedGallopingIntersect2By2(set2, length2, set1, length1, buffer);
+                return OneSidedGallopingIntersect2By2(set2, length2, set1, length1, buffer);
             }
-            return UnsignedLocalIntersect2By2(set1, length1, set2, length2, buffer);
+            return LocalIntersect2By2(set1, length1, set2, length2, buffer);
         }
 
-        private static int UnsignedLocalIntersect2By2(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
+        private static int LocalIntersect2By2(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
             if ((0 == length1) || (0 == length2))
             {
@@ -165,7 +222,7 @@ namespace RoaringBitmap
             return pos;
         }
 
-        private static int UnsignedOneSidedGallopingIntersect2By2(ushort[] smallSet, int smallLength, ushort[] largeSet, int largeLength, ushort[] buffer)
+        private static int OneSidedGallopingIntersect2By2(ushort[] smallSet, int smallLength, ushort[] largeSet, int largeLength, ushort[] buffer)
         {
             if (0 == smallLength)
             {

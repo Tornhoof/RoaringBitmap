@@ -184,12 +184,38 @@ namespace RoaringBitmap
             return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
+        public static Container AndNot(BitmapContainer x, BitmapContainer y)
+        {
+            var data = Clone(x.m_Bitmap);
+            var bc = new BitmapContainer(AndNotInternal(data, y.m_Bitmap), data);
+            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
+        }
+
+        public static Container AndNot(BitmapContainer x, ArrayContainer y)
+        {
+            var data = Clone(x.m_Bitmap);
+            var bc = new BitmapContainer(x.m_Cardinality + y.AndNotArray(data), data);
+            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
+        }
+
         private static int XorInternal(ulong[] first, ulong[] second)
         {
             var c = 0;
             for (var k = 0; k < first.Length; k++)
             {
                 var w = first[k] ^ second[k];
+                first[k] = w;
+                c += Util.BitCount(w);
+            }
+            return c;
+        }
+
+        private static int AndNotInternal(ulong[] first, ulong[] second)
+        {
+            var c = 0;
+            for (var k = 0; k < first.Length; k++)
+            {
+                var w = first[k] & (~second[k]);
                 first[k] = w;
                 c += Util.BitCount(w);
             }

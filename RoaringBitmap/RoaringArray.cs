@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace RoaringBitmap
 {
@@ -15,16 +14,15 @@ namespace RoaringBitmap
         /// <summary>
         ///     Use List directly, because the enumerator is a struct
         /// </summary>
-        internal RoaringArray(List<Tuple<ushort, Container>> containers)
+        internal RoaringArray(int size, List<ushort> keys, List<Container> containers)
         {
-            m_Size = containers?.Count ?? 0;
+            m_Size = size;
             m_Keys = new ushort[m_Size];
             m_Values = new Container[m_Size];
             for (var i = 0; i < m_Size; i++)
             {
-                Debug.Assert(containers != null);
-                m_Keys[i] = containers[i].Item1;
-                m_Values[i] = containers[i].Item2;
+                m_Keys[i] = keys[i];
+                m_Values[i] = containers[i];
                 Cardinality += m_Values[i].Cardinality;
             }
         }
@@ -98,7 +96,9 @@ namespace RoaringBitmap
         {
             var xLength = x.m_Size;
             var yLength = y.m_Size;
-            var list = new List<Tuple<ushort, Container>>(xLength + yLength);
+            var keys = new List<ushort>(xLength + yLength);
+            var containers = new List<Container>(xLength + yLength);
+            var size = 0;
             var xPos = 0;
             var yPos = 0;
             if (xPos < xLength && yPos < yLength)
@@ -109,7 +109,9 @@ namespace RoaringBitmap
                 {
                     if (xKey == yKey)
                     {
-                        list.Add(new Tuple<ushort, Container>(xKey, x.m_Values[xPos] | y.m_Values[yPos]));
+                        keys.Add(xKey);
+                        containers.Add(x.m_Values[xPos] | y.m_Values[yPos]);
+                        size++;
                         xPos++;
                         yPos++;
                         if ((xPos == xLength) || (yPos == yLength))
@@ -121,7 +123,9 @@ namespace RoaringBitmap
                     }
                     else if (xKey < yKey)
                     {
-                        list.Add(new Tuple<ushort, Container>(xKey, x.m_Values[xPos]));
+                        keys.Add(xKey);
+                        containers.Add(x.m_Values[xPos]);
+                        size++;
                         xPos++;
                         if (xPos == xLength)
                         {
@@ -131,7 +135,9 @@ namespace RoaringBitmap
                     }
                     else
                     {
-                        list.Add(new Tuple<ushort, Container>(yKey, y.m_Values[yPos]));
+                        keys.Add(yKey);
+                        containers.Add(y.m_Values[yPos]);
+                        size++;
                         yPos++;
                         if (yPos == yLength)
                         {
@@ -145,24 +151,30 @@ namespace RoaringBitmap
             {
                 for (var i = yPos; i < yLength; i++)
                 {
-                    list.Add(new Tuple<ushort, Container>(y.m_Keys[i], y.m_Values[i]));
+                    keys.Add(y.m_Keys[i]);
+                    containers.Add(y.m_Values[i]);
+                    size++;
                 }
             }
             else if (yPos == yLength)
             {
                 for (var i = xPos; i < xLength; i++)
                 {
-                    list.Add(new Tuple<ushort, Container>(x.m_Keys[i], x.m_Values[i]));
+                    keys.Add(x.m_Keys[i]);
+                    containers.Add(x.m_Values[i]);
+                    size++;
                 }
             }
-            return new RoaringArray(list);
+            return new RoaringArray(size, keys, containers);
         }
 
         public static RoaringArray operator &(RoaringArray x, RoaringArray y)
         {
             var xLength = x.m_Size;
             var yLength = y.m_Size;
-            List<Tuple<ushort, Container>> list = null;
+            List<ushort> keys = null;
+            List<Container> containers = null;
+            var size = 0;
             var xPos = 0;
             var yPos = 0;
             while (xPos < xLength && yPos < yLength)
@@ -174,11 +186,15 @@ namespace RoaringBitmap
                     var c = x.m_Values[xPos] & y.m_Values[yPos];
                     if (c.Cardinality > 0)
                     {
-                        if (list == null)
+                        if (keys == null)
                         {
-                            list = new List<Tuple<ushort, Container>>(Math.Min(xLength, yLength));
+                            var length = Math.Min(xLength, yLength);
+                            keys = new List<ushort>(length);
+                            containers = new List<Container>(length);
                         }
-                        list.Add(new Tuple<ushort, Container>(xKey, c));
+                        keys.Add(xKey);
+                        containers.Add(c);
+                        size++;
                     }
                     xPos++;
                     yPos++;
@@ -192,14 +208,16 @@ namespace RoaringBitmap
                     yPos = y.AdvanceUntil(xKey, yPos);
                 }
             }
-            return new RoaringArray(list);
+            return new RoaringArray(size, keys, containers);
         }
 
         public static RoaringArray operator ^(RoaringArray x, RoaringArray y)
         {
             var xLength = x.m_Size;
             var yLength = y.m_Size;
-            var list = new List<Tuple<ushort, Container>>(xLength + yLength);
+            var keys = new List<ushort>(xLength + yLength);
+            var containers = new List<Container>(xLength + yLength);
+            var size = 0;
             var xPos = 0;
             var yPos = 0;
             if (xPos < xLength && yPos < yLength)
@@ -210,7 +228,9 @@ namespace RoaringBitmap
                 {
                     if (xKey == yKey)
                     {
-                        list.Add(new Tuple<ushort, Container>(xKey, x.m_Values[xPos] ^ y.m_Values[yPos]));
+                        keys.Add(xKey);
+                        containers.Add(x.m_Values[xPos] ^ y.m_Values[yPos]);
+                        size++;
                         xPos++;
                         yPos++;
                         if ((xPos == xLength) || (yPos == yLength))
@@ -222,7 +242,9 @@ namespace RoaringBitmap
                     }
                     else if (xKey < yKey)
                     {
-                        list.Add(new Tuple<ushort, Container>(xKey, x.m_Values[xPos]));
+                        keys.Add(xKey);
+                        containers.Add(x.m_Values[xPos]);
+                        size++;
                         xPos++;
                         if (xPos == xLength)
                         {
@@ -232,7 +254,9 @@ namespace RoaringBitmap
                     }
                     else
                     {
-                        list.Add(new Tuple<ushort, Container>(yKey, y.m_Values[yPos]));
+                        keys.Add(yKey);
+                        containers.Add(y.m_Values[yPos]);
+                        size++;
                         yPos++;
                         if (yPos == yLength)
                         {
@@ -246,29 +270,37 @@ namespace RoaringBitmap
             {
                 for (var i = yPos; i < yLength; i++)
                 {
-                    list.Add(new Tuple<ushort, Container>(y.m_Keys[i], y.m_Values[i]));
+                    keys.Add(y.m_Keys[i]);
+                    containers.Add(y.m_Values[i]);
+                    size++;
                 }
             }
             else if (yPos == yLength)
             {
                 for (var i = xPos; i < xLength; i++)
                 {
-                    list.Add(new Tuple<ushort, Container>(x.m_Keys[i], x.m_Values[i]));
+                    keys.Add(x.m_Keys[i]);
+                    containers.Add(x.m_Values[i]);
+                    size++;
                 }
             }
-            return new RoaringArray(list);
+            return new RoaringArray(size, keys, containers);
         }
 
         public static RoaringArray operator ~(RoaringArray x)
         {
-            var list = new List<Tuple<ushort, Container>>(ushort.MaxValue);
-            int oldIndex = 0;
+            var keys = new List<ushort>(ushort.MaxValue);
+            var size = 0;
+            var containers = new List<Container>(ushort.MaxValue);
+            var oldIndex = 0;
             for (ushort i = 0; i < ushort.MaxValue; i++)
             {
                 var index = Array.BinarySearch(x.m_Keys, oldIndex, x.m_Size - oldIndex, i);
                 if (index < 0)
                 {
-                    list.Add(new Tuple<ushort, Container>(i, BitmapContainer.One));
+                    keys.Add(i);
+                    containers.Add(BitmapContainer.One);
+                    size++;
                 }
                 else
                 {
@@ -278,13 +310,68 @@ namespace RoaringBitmap
                         var nc = ~c;
                         if (nc.Cardinality > 0)
                         {
-                            list.Add(new Tuple<ushort, Container>(i, nc));
+                            keys.Add(i);
+                            containers.Add(nc);
+                            size++;
                         }
                     }
                     oldIndex = index;
                 }
             }
-            return new RoaringArray(list);
+            return new RoaringArray(size, keys, containers);
+        }
+
+        public static RoaringArray AndNot(RoaringArray x, RoaringArray y)
+        {
+            var xLength = x.m_Size;
+            var yLength = y.m_Size;
+            var keys = new List<ushort>(xLength);
+            var containers = new List<Container>(xLength);
+            var size = 0;
+            var xPos = 0;
+            var yPos = 0;
+            while (xPos < xLength && yPos < yLength)
+            {
+                var xKey = x.m_Keys[xPos];
+                var yKey = y.m_Keys[yPos];
+                if (xKey == yKey)
+                {
+                    var c = Container.AndNot(x.m_Values[xPos], y.m_Values[yPos]);
+                    if (c.Cardinality > 0)
+                    {
+                        keys.Add(xKey);
+                        containers.Add(c);
+                        size++;
+                    }
+                    xPos++;
+                    yPos++;
+                }
+                else if (xKey < yKey)
+                {
+                    var next = x.AdvanceUntil(yKey, xPos);
+                    for (var i = xPos; i < next; i++)
+                    {
+                        keys.Add(x.m_Keys[i]);
+                        containers.Add(x.m_Values[i]);
+                        size++;
+                    }
+                    xPos = next;
+                }
+                else
+                {
+                    yPos = y.AdvanceUntil(xKey, yPos);
+                }
+            }
+            if (yPos == yLength)
+            {
+                for (var i = xPos; i < xLength; i++)
+                {
+                    keys.Add(x.m_Keys[i]);
+                    containers.Add(x.m_Values[i]);
+                    size++;
+                }
+            }
+            return new RoaringArray(size, keys, containers);
         }
 
         public override bool Equals(object obj)

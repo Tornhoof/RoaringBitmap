@@ -150,6 +150,31 @@ namespace RoaringBitmap.Tests
             }
         }
 
+        [Theory]
+        [InlineData(DataSets.CensusIncome, 5666586)]
+        [InlineData(DataSets.Census1881, 1003836)]
+        [InlineData(DataSets.Dimension003, 3866831)]
+        [InlineData(DataSets.Dimension008, 2721459)]
+        [InlineData(DataSets.Dimension033, 3866842)]
+        [InlineData(DataSets.UsCensus2000, 5970)]
+        [InlineData(DataSets.WeatherSept85, 11960876)]
+        [InlineData(DataSets.WikileaksNoQuotes, 271605)]
+        [InlineData(DataSets.CensusIncomeSrt, 5164671)]
+        [InlineData(DataSets.Census1881Srt, 679375)]
+        [InlineData(DataSets.WeatherSept85Srt, 14935706)]
+        [InlineData(DataSets.WikileaksNoQuotesSrt, 286904)]
+        public void AndNot(string name, int value)
+        {
+            var bitmaps = m_Fixture.GetBitmaps(name);
+            Assert.NotNull(bitmaps);
+            var total = 0;
+            for (var k = 0; k < bitmaps.Length - 1; k++)
+            {
+                total += RoaringBitmap.AndNot(bitmaps[k], bitmaps[k + 1]).Cardinality;
+            }
+            Assert.Equal(value, total);
+        }
+
 
         public class BenchmarkTestsFixture
         {

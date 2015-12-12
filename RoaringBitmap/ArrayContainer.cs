@@ -155,6 +155,28 @@ namespace RoaringBitmap
             return y ^ x;
         }
 
+        public static Container AndNot(ArrayContainer x, ArrayContainer y)
+        {
+            var desiredCapacity = x.m_Cardinality;
+            return new ArrayContainer(desiredCapacity, buffer => Util.DifferenceArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
+        }
+
+        public static Container AndNot(ArrayContainer x, BitmapContainer y)
+        {
+            var data = new ushort[x.m_Content.Length];
+            var c = x.m_Cardinality;
+            var pos = 0;
+            for (var i = 0; i < c; i++)
+            {
+                var v = x.m_Content[i];
+                if (!y.Contains(v))
+                {
+                    data[pos++] = v;
+                }
+            }
+            return new ArrayContainer(pos, data);
+        }
+
         public int OrArray(ulong[] bitmap)
         {
             var extraCardinality = 0;
@@ -183,6 +205,23 @@ namespace RoaringBitmap
                 var mask = (1UL << yValue);
                 bitmap[index] = previous ^ mask;
                 extraCardinality += (int) (1 - 2 * ((previous & mask) >> yValue));
+            }
+            return extraCardinality;
+        }
+
+
+        public int AndNotArray(ulong[] bitmap)
+        {
+            var extraCardinality = 0;
+            var yC = m_Cardinality;
+            for (var i = 0; i < yC; i++)
+            {
+                var yValue = m_Content[i];
+                var index = yValue >> 6;
+                var previous = bitmap[index];
+                var after = previous & (~(1UL << yValue));
+                bitmap[index] = after;
+                extraCardinality -= (int) (((previous ^ after) >> yValue));
             }
             return extraCardinality;
         }

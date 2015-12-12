@@ -51,6 +51,17 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
             return total;
         }
 
+        [Benchmark]
+        public int AndNot()
+        {
+            var total = 0;
+            for (var k = 0; k < m_Bitmaps.Length - 1; k++)
+            {
+                total += RoaringBitmap.AndNot(m_Bitmaps[k], m_Bitmaps[k + 1]).Cardinality;
+            }
+            return total;
+        }
+
 
         [Benchmark]
         public int Iterate()

@@ -346,5 +346,58 @@ namespace RoaringBitmap.Tests
             Assert.NotEqual(rb, rb2);
             Assert.NotEqual(rb.GetHashCode(), rb2.GetHashCode());
         }
+
+        [Fact]
+        public void AndNotDisjunct()
+        {
+            var rb = RoaringBitmap.Create(CreateMixedListOne());
+            var rb2 = RoaringBitmap.Create(CreateMixedListTwo());
+
+            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            Assert.NotNull(rb3);
+            Assert.Equal(rb.ToList(), rb3.ToList());
+        }
+
+        [Fact]
+        public void AndNotPartiallyArrayContainer()
+        {
+            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 200));
+            var rb2 = RoaringBitmap.Create(Enumerable.Range(1100, 400));
+            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            Assert.NotNull(rb3);
+            var rbList = rb3.ToList();
+            Assert.Equal(Enumerable.Range(1000, 100), rbList);
+        }
+
+
+        [Fact]
+        public void AndNotPartiallyBitmapContainerArrayContainerResult()
+        {
+            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 5000));
+            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 5000));
+            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            Assert.NotNull(rb3);
+            var rbList = rb3.ToList();
+            Assert.Equal(Enumerable.Range(1000, 3000), rbList);
+        }
+
+        [Fact]
+        public void AndNotPartiallyBitmapContainerBitmapContainerResult()
+        {
+            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 10000));
+            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            Assert.NotNull(rb3);
+            var rbList = rb3.ToList();
+            Assert.Equal(Enumerable.Range(1000, 3000), rbList);
+        }
+
+        [Fact]
+        public void BasicCreate()
+        {
+            var rb = RoaringBitmap.Create(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            var rb2 = RoaringBitmap.Create(Enumerable.Range(1, 10));
+            Assert.Equal(rb, rb2);
+        }
     }
 }
