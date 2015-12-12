@@ -262,9 +262,10 @@ namespace RoaringBitmap
         public static RoaringArray operator ~(RoaringArray x)
         {
             var list = new List<Tuple<ushort, Container>>(ushort.MaxValue);
+            int oldIndex = 0;
             for (ushort i = 0; i < ushort.MaxValue; i++)
             {
-                var index = Array.BinarySearch(x.m_Keys, i);
+                var index = Array.BinarySearch(x.m_Keys, oldIndex, x.m_Size - oldIndex, i);
                 if (index < 0)
                 {
                     list.Add(new Tuple<ushort, Container>(i, BitmapContainer.One));
@@ -272,14 +273,15 @@ namespace RoaringBitmap
                 else
                 {
                     var c = x.m_Values[index];
-                    if(!c.Equals(BitmapContainer.One)) // the bitwise negation of the one container is the zero container
+                    if (!c.Equals(BitmapContainer.One)) // the bitwise negation of the one container is the zero container
                     {
                         var nc = ~c;
-                        if (nc.Cardinality > 0) // o
+                        if (nc.Cardinality > 0)
                         {
                             list.Add(new Tuple<ushort, Container>(i, nc));
                         }
                     }
+                    oldIndex = index;
                 }
             }
             return new RoaringArray(list);

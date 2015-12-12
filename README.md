@@ -6,10 +6,12 @@ This is an early version, the test coverage is ok, but edge case tests are proba
 Target Framework is .NET 4.6
 
 # What is in it?
-
 * Immutable data structure using readonly fields and private constructors
 * overloaded operators for AND, OR, NOT and XOR
-* No RLE at the moment
+
+# TODO
+* Serialization
+* Improve memory usage, especially NOT will put objects on the Large Object Heap
 
 # How to use it?
 Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it. See the Unit Tests for examples.
@@ -21,7 +23,6 @@ It also depends heavily on the system used, on a Intel XEON W3550 the .NET code 
 The iterator is several times slower than its Java pendant, I do not yet know why.
 The RoaringBitmap.Benchmark project contains microbenchmarks for the real-roaring-data set. This set is also used by the Unit Tests.
 
-// ***** Competition: Finish  *****
 
 ```ini
 BenchmarkDotNet=v0.7.8.0
