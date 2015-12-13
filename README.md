@@ -10,6 +10,9 @@ Target Framework is .NET 4.6
 * Overloaded operators for AND, OR, NOT and XOR
 * Support for the Set Difference Operator using RoaringBitmap.AndNot
 
+# NuGet
+https://www.nuget.org/packages/RoaringBitmap/
+
 # TODO
 * Improve memory usage, especially NOT will put objects on the Large Object Heap
 
