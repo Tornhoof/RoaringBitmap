@@ -22,7 +22,7 @@ Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitm
 var rb = RoaringBitmap.Create(1,2,3,4,5,7,8,9,10);
 var rb2 = RoaringBitmap.Create(Enumerable.Range(10000,200000));
 var rb3 = rb | rb2;
-
+```
 
 # Performance
 As this is a fairly direct port of the Java library the performance is comparable, on average around 10-20% slower, probably because C# has no popcnt intrinsic and due to the Immutable datastructure overhead.
