@@ -1,0 +1,1 @@
+nuget pack RoaringBitmap.csproj -Prop Configuration=Release
