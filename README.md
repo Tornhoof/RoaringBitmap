@@ -11,7 +11,6 @@ Target Framework is .NET 4.6
 * Support for the Set Difference Operator using RoaringBitmap.AndNot
 
 # TODO
-* Serialization
 * Improve memory usage, especially NOT will put objects on the Large Object Heap
 * Nuget Package
 

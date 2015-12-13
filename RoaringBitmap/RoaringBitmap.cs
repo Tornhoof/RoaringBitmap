@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace RoaringBitmap
@@ -101,6 +102,17 @@ namespace RoaringBitmap
         public override int GetHashCode()
         {
             return (13 ^ m_HighLowContainer.GetHashCode()) << 3;
+        }
+
+        public static void Serialize(RoaringBitmap roaringBitmap, Stream stream)
+        {
+            RoaringArray.Serialize(roaringBitmap.m_HighLowContainer, stream);
+        }
+
+        public static RoaringBitmap Deserialize(Stream stream)
+        {
+            var ra = RoaringArray.Deserialize(stream);
+            return new RoaringBitmap(ra);
         }
     }
 }

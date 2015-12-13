@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Runtime.CompilerServices;
 
 namespace RoaringBitmap
@@ -32,7 +33,7 @@ namespace RoaringBitmap
             m_Cardinality = cardinality;
         }
 
-        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? ushort.MaxValue - cardinality +1 : cardinality)
+        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? ushort.MaxValue - cardinality + 1 : cardinality)
         {
             if (negated)
             {
@@ -132,13 +133,13 @@ namespace RoaringBitmap
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
         private static ulong[] Clone(ulong[] data)
         {
             var result = new ulong[data.Length];
-            Buffer.BlockCopy(data, 0, result, 0, data.Length*sizeof(ulong));
+            Buffer.BlockCopy(data, 0, result, 0, data.Length * sizeof (ulong));
             return result;
         }
 
@@ -188,14 +189,14 @@ namespace RoaringBitmap
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndNotInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
         public static Container AndNot(BitmapContainer x, ArrayContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.AndNotArray(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container)ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
         }
 
         private static int XorInternal(ulong[] first, ulong[] second)
@@ -296,7 +297,7 @@ namespace RoaringBitmap
                 while (bitset != 0)
                 {
                     var t = bitset & (~bitset + 1);
-                    data[pos++] = (ushort)(shiftedK + Util.BitCount(t - 1));
+                    data[pos++] = (ushort) (shiftedK + Util.BitCount(t - 1));
                     bitset ^= t;
                 }
             }
@@ -311,14 +312,34 @@ namespace RoaringBitmap
 
         public override int GetHashCode()
         {
-            var code = (ulong)m_Cardinality;
+            var code = (ulong) m_Cardinality;
             code <<= 3;
             foreach (var @ulong in m_Bitmap)
             {
                 code ^= @ulong;
                 code <<= 3;
             }
-            return (int)((code & 0xFFFFFFFF) >> 32);
+            return (int) ((code & 0xFFFFFFFF) >> 32);
+        }
+
+        public static void Serialize(BitmapContainer bc, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(bc.m_Cardinality);
+            for (var i = 0; i < 1024; i++)
+            {
+                binaryWriter.Write(bc.m_Bitmap[i]);
+            }
+        }
+
+        public static BitmapContainer Deserialize(BinaryReader binaryReader)
+        {
+            var cardinality = binaryReader.ReadInt32();
+            var data = new ulong[1024];
+            for (var i = 0; i < 1024; i++)
+            {
+                data[i] = binaryReader.ReadUInt64();
+            }
+            return new BitmapContainer(cardinality, data);
         }
     }
 }

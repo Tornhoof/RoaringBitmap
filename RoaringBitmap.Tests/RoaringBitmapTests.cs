@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -398,6 +399,19 @@ namespace RoaringBitmap.Tests
             var rb = RoaringBitmap.Create(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
             var rb2 = RoaringBitmap.Create(Enumerable.Range(1, 10));
             Assert.Equal(rb, rb2);
+        }
+
+        [Fact]
+        public void SerializeDeserialize()
+        {
+            var rb = RoaringBitmap.Create(Enumerable.Range(1, 100000));
+            using (var ms = new MemoryStream())
+            {
+                RoaringBitmap.Serialize(rb, ms);
+                ms.Position = 0;
+                var rb2 = RoaringBitmap.Deserialize(ms);
+                Assert.Equal(rb, rb2);
+            }
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace RoaringBitmap
 {
     public class ArrayContainer : Container, IEquatable<ArrayContainer>
     {
-        public static readonly ArrayContainer Zero;
+        public static readonly ArrayContainer One;
         private readonly int m_Cardinality;
         private readonly ushort[] m_Content;
 
@@ -16,7 +17,7 @@ namespace RoaringBitmap
             {
                 data[i] = i;
             }
-            Zero = new ArrayContainer(0);
+            One = new ArrayContainer(MaxSize, data);
         }
 
         private ArrayContainer(int cardinality)
@@ -242,6 +243,26 @@ namespace RoaringBitmap
                 code <<= 3;
             }
             return code;
+        }
+
+        public static void Serialize(ArrayContainer ac, BinaryWriter binaryWriter)
+        {
+            binaryWriter.Write(ac.m_Cardinality);
+            for (var i = 0; i < ac.m_Cardinality;i++)
+            {
+                binaryWriter.Write(ac.m_Content[i]);
+            }
+        }
+
+        public static ArrayContainer Deserialize(BinaryReader binaryReader)
+        {
+            var cardinality = binaryReader.ReadInt32();
+            var data = new ushort[cardinality];
+            for (var i = 0; i < cardinality; i++)
+            {
+                data[i] = binaryReader.ReadUInt16();
+            }
+            return new ArrayContainer(cardinality, data);
         }
     }
 }

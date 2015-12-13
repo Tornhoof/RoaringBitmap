@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace RoaringBitmap
 {
@@ -27,6 +30,14 @@ namespace RoaringBitmap
             }
         }
 
+        private RoaringArray(int size, ushort[] keys, Container[] containers)
+        {
+            m_Size = size;
+            m_Keys = keys;
+            m_Values = containers;
+            Cardinality = m_Values.Sum(t => t.Cardinality);
+        }
+
         public int Cardinality { get; }
 
         public IEnumerator<int> GetEnumerator()
@@ -37,7 +48,7 @@ namespace RoaringBitmap
                 var shiftedKey = key << 16;
                 var container = m_Values[i];
                 foreach (var @ushort in container)
-                { 
+                {
                     yield return shiftedKey | @ushort;
                 }
             }
@@ -395,6 +406,71 @@ namespace RoaringBitmap
                 code <<= 3;
             }
             return code;
+        }
+
+        public static void Serialize(RoaringArray roaringArray, Stream stream)
+        {
+            using (var binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true))
+            {
+                binaryWriter.Write(roaringArray.m_Size);
+                for (var i = 0; i < roaringArray.m_Keys.Length; i++)
+                {
+                    binaryWriter.Write(roaringArray.m_Keys[i]);
+                    var c = roaringArray.m_Values[i];
+
+                    if (Equals(c, ArrayContainer.One))
+                    {
+                        binaryWriter.Write((byte) 0);
+                    }
+                    else if (c is ArrayContainer)
+                    {
+                        binaryWriter.Write((byte) 1);
+                        ArrayContainer.Serialize((ArrayContainer) c, binaryWriter);
+                    }
+                    else if (Equals(c, BitmapContainer.One))
+                    {
+                        binaryWriter.Write((byte) 0x7F);
+                    }
+                    else if (c is BitmapContainer)
+                    {
+                        binaryWriter.Write((byte) 0x80);
+                        BitmapContainer.Serialize((BitmapContainer) c, binaryWriter);
+                    }
+                }
+                binaryWriter.Flush();
+            }
+        }
+
+        public static RoaringArray Deserialize(Stream stream)
+        {
+            using (var binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
+            {
+                var size = binaryReader.ReadInt32();
+                var keys = new ushort[size];
+                var containers = new Container[size];
+                for (var i = 0; i < size; i++)
+                {
+                    keys[i] = binaryReader.ReadUInt16();
+                    var type = binaryReader.ReadByte();
+                    if (type == 0)
+                    {
+                        containers[i] = ArrayContainer.One;
+                    }
+                    else if (type == 1)
+                    {
+                        containers[i] = ArrayContainer.Deserialize(binaryReader);
+                    }
+                    else if (type == 0x7F)
+                    {
+                        containers[i] = BitmapContainer.One;
+                    }
+                    else if (type == 0x80)
+                    {
+                        containers[i] = BitmapContainer.Deserialize(binaryReader);
+                    }
+                }
+                return new RoaringArray(size, keys, containers);
+            }
         }
     }
 }

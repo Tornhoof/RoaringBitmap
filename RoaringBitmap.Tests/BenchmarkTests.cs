@@ -175,6 +175,35 @@ namespace RoaringBitmap.Tests
             Assert.Equal(value, total);
         }
 
+        [Theory]
+        [InlineData(DataSets.CensusIncome)]
+        [InlineData(DataSets.Census1881)]
+        [InlineData(DataSets.Dimension003)]
+        [InlineData(DataSets.Dimension008)]
+        [InlineData(DataSets.Dimension033)]
+        [InlineData(DataSets.UsCensus2000)]
+        [InlineData(DataSets.WeatherSept85)]
+        [InlineData(DataSets.WikileaksNoQuotes)]
+        [InlineData(DataSets.CensusIncomeSrt)]
+        [InlineData(DataSets.Census1881Srt)]
+        [InlineData(DataSets.WeatherSept85Srt)]
+        [InlineData(DataSets.WikileaksNoQuotesSrt)]
+        public void SerializeDeserialize(string name)
+        {
+            var bitmaps = m_Fixture.GetBitmaps(name);
+            Assert.NotNull(bitmaps);
+            foreach (var roaringBitmap in bitmaps)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    RoaringBitmap.Serialize(roaringBitmap, ms);
+                    ms.Position = 0;
+                    var rb2 = RoaringBitmap.Deserialize(ms);
+                    Assert.Equal(roaringBitmap, rb2);
+                }
+            }
+        }
+
 
         public class BenchmarkTestsFixture
         {
