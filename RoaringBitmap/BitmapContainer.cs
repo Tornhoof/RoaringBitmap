@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace RoaringBitmap
 {
-    public class BitmapContainer : Container, IEquatable<BitmapContainer>
+    internal class BitmapContainer : Container, IEquatable<BitmapContainer>
     {
         public static readonly BitmapContainer One;
         private readonly ulong[] m_Bitmap;

@@ -7,7 +7,7 @@ namespace RoaringBitmap
     ///     Pretty much everything in here are straight conversions from the original Util class in the java Roaring Bitmap
     ///     project.
     /// </summary>
-    public static class Util
+    internal static class Util
     {
         /// <summary>
         ///  see https://en.wikipedia.org/wiki/Hamming_weight

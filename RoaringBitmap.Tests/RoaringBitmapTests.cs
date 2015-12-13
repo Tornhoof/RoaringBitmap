@@ -20,7 +20,7 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void MaxArray()
         {
-            var list = Enumerable.Range(0, Container.MaxSize + 1).ToList();
+            var list = Enumerable.Range(0, 4097).ToList();
             var rb = RoaringBitmap.Create(list);
             var rbList = rb.ToList();
             Assert.Equal(list, rbList);

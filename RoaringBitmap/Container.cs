@@ -2,7 +2,7 @@
 
 namespace RoaringBitmap
 {
-    public abstract class Container
+    internal abstract class Container
     {
         public static int MaxSize = 4096; // everything <= is an ArrayContainer
 

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace RoaringBitmap
 {
-    public class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
+    internal class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
     {
         private readonly ushort[] m_Keys;
         private readonly int m_Size;

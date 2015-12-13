@@ -5,17 +5,20 @@ Most of the algorithms are ports of the original Java algorithms.
 This is an early version, the test coverage is ok, but edge case tests are probably missing.
 Target Framework is .NET 4.6
 
-# What is in it?
-* Immutable data structure using readonly fields and private constructors
-* overloaded operators for AND, OR, NOT and XOR
+# Details
+* Immutable data structure using readonly fields and private constructors, so it's thread-safe
+* Overloaded operators for AND, OR, NOT and XOR
 * Support for the Set Difference Operator using RoaringBitmap.AndNot
 
 # TODO
 * Improve memory usage, especially NOT will put objects on the Large Object Heap
-* Nuget Package
 
 # How to use it?
-Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it. See the Unit Tests for examples.
+Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it.
+```csharp
+var rb = RoaringBitmap.Create(1,2,3,4,5,7,8,9,10);
+var rb2 = RoaringBitmap.Create(Enumerable.Range(10000,200000));
+var rb3 = rb | rb2;
 
 
 # Performance

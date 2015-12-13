@@ -4,7 +4,7 @@ using System.IO;
 
 namespace RoaringBitmap
 {
-    public class ArrayContainer : Container, IEquatable<ArrayContainer>
+    internal class ArrayContainer : Container, IEquatable<ArrayContainer>
     {
         public static readonly ArrayContainer One;
         private readonly int m_Cardinality;
