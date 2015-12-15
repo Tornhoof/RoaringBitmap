@@ -12,7 +12,7 @@ namespace RoaringBitmap.Tests
         public void SmallArray()
         {
             var list = Enumerable.Range(0, 100).ToList();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rbList = rb.ToList();
             Assert.Equal(list, rbList);
         }
@@ -21,7 +21,7 @@ namespace RoaringBitmap.Tests
         public void MaxArray()
         {
             var list = Enumerable.Range(0, 4097).ToList();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rbList = rb.ToList();
             Assert.Equal(list, rbList);
         }
@@ -30,7 +30,7 @@ namespace RoaringBitmap.Tests
         public void LargeArray()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rbList = rb.ToList();
             Assert.Equal(list, rbList);
         }
@@ -101,7 +101,7 @@ namespace RoaringBitmap.Tests
         public void OrSame()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rb2 = rb | rb;
             Assert.NotNull(rb2);
             var rbList = rb2.ToList();
@@ -113,8 +113,8 @@ namespace RoaringBitmap.Tests
         {
             var firstList = CreateMixedListOne();
             var secondList = CreateMixedListTwo();
-            var rb = RoaringBitmap.Create(firstList);
-            var rb2 = RoaringBitmap.Create(secondList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
+            var rb2 = Collections.Special.RoaringBitmap.Create(secondList);
             var rb3 = rb | rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -128,11 +128,11 @@ namespace RoaringBitmap.Tests
             var random = new Random(4);
             var lists = new List<List<int>>();
             var firstList = CreateRandomList(random, 10000);
-            var rb = RoaringBitmap.Create(firstList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
             lists.Add(firstList);
             var nextList = CreateRandomList(random, 10000);
             lists.Add(nextList);
-            rb |= RoaringBitmap.Create(nextList);
+            rb |= Collections.Special.RoaringBitmap.Create(nextList);
             var comparison = lists.SelectMany(t => t).Distinct().OrderBy(t => t).ToList();
             var rbList = rb.ToList();
             Assert.Equal(comparison, rbList);
@@ -145,13 +145,13 @@ namespace RoaringBitmap.Tests
             var random = new Random();
             var lists = new List<List<int>>();
             var firstList = CreateRandomList(random, 10000);
-            var rb = RoaringBitmap.Create(firstList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
             lists.Add(firstList);
             for (var i = 0; i < 10; i++)
             {
                 var nextList = CreateRandomList(random, 10000);
                 lists.Add(nextList);
-                rb &= RoaringBitmap.Create(nextList);
+                rb &= Collections.Special.RoaringBitmap.Create(nextList);
             }
             var comparison = lists.Skip(1).Aggregate(new HashSet<int>(lists.First()),
                 (h, e) =>
@@ -167,7 +167,7 @@ namespace RoaringBitmap.Tests
         public void AndSame()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rb2 = rb & rb;
             Assert.NotNull(rb2);
             var rbList = rb2.ToList();
@@ -179,8 +179,8 @@ namespace RoaringBitmap.Tests
         {
             var firstList = CreateMixedListOne();
             var secondList = CreateMixedListTwo();
-            var rb = RoaringBitmap.Create(firstList);
-            var rb2 = RoaringBitmap.Create(secondList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
+            var rb2 = Collections.Special.RoaringBitmap.Create(secondList);
             var rb3 = rb & rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -192,8 +192,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndPartiallyArrayContainer()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 200));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(1100, 400));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 200));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1100, 400));
             var rb3 = rb & rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -203,8 +203,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndPartiallyBitmapContainerArrayContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 5000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 5000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 5000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 5000));
             var rb3 = rb & rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -214,8 +214,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndPartiallyBitmapContainerBitmapContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 10000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 10000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 10000));
             var rb3 = rb & rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -225,8 +225,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndPartiallySameMixedContainer()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 4000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 4000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 10000));
             var rb3 = rb & rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -237,7 +237,7 @@ namespace RoaringBitmap.Tests
         public void Not()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rb2 = ~rb;
             var rb3 = ~rb2;
 
@@ -249,7 +249,7 @@ namespace RoaringBitmap.Tests
         public void XorSame()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
             var rb2 = rb ^ rb;
             var rbList = rb2.ToList();
             Assert.Empty(rbList);
@@ -260,8 +260,8 @@ namespace RoaringBitmap.Tests
         {
             var firstList = CreateMixedListOne();
             var secondList = CreateMixedListTwo();
-            var rb = RoaringBitmap.Create(firstList);
-            var rb2 = RoaringBitmap.Create(secondList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
+            var rb2 = Collections.Special.RoaringBitmap.Create(secondList);
             var rb3 = rb ^ rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -274,8 +274,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void XorPartiallyArrayContainer()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 200));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(1100, 400));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 200));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1100, 400));
             var rb3 = rb ^ rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -286,8 +286,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void XorPartiallyBitmapContainerArrayContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 5000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 5000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 5000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 5000));
             var rb3 = rb ^ rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -297,8 +297,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void XorPartiallyBitmapContainerBitmapContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 10000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 10000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 10000));
             var rb3 = rb ^ rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -308,8 +308,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void XorPartiallySameMixedContainer()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 4000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 4000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 10000));
             var rb3 = rb ^ rb2;
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
@@ -321,9 +321,9 @@ namespace RoaringBitmap.Tests
         {
             var random = new Random();
             var firstList = CreateRandomList(random, 10000);
-            var rb = RoaringBitmap.Create(firstList);
+            var rb = Collections.Special.RoaringBitmap.Create(firstList);
             var nextList = CreateRandomList(random, 10000);
-            rb ^= RoaringBitmap.Create(nextList);
+            rb ^= Collections.Special.RoaringBitmap.Create(nextList);
             var rbList = rb.ToList();
             var comparison = firstList.Union(nextList).Except(firstList.Intersect(nextList)).OrderBy(t => t).ToList();
             Assert.Equal(comparison, rbList);
@@ -333,8 +333,8 @@ namespace RoaringBitmap.Tests
         public void Equal()
         {
             var list = CreateMixedListOne();
-            var rb = RoaringBitmap.Create(list);
-            var rb2 = RoaringBitmap.Create(list);
+            var rb = Collections.Special.RoaringBitmap.Create(list);
+            var rb2 = Collections.Special.RoaringBitmap.Create(list);
             Assert.Equal(rb, rb2);
             Assert.Equal(rb.GetHashCode(), rb2.GetHashCode());
         }
@@ -342,8 +342,8 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void NotEqual()
         {
-            var rb = RoaringBitmap.Create(CreateMixedListOne());
-            var rb2 = RoaringBitmap.Create(CreateMixedListTwo());
+            var rb = Collections.Special.RoaringBitmap.Create(CreateMixedListOne());
+            var rb2 = Collections.Special.RoaringBitmap.Create(CreateMixedListTwo());
             Assert.NotEqual(rb, rb2);
             Assert.NotEqual(rb.GetHashCode(), rb2.GetHashCode());
         }
@@ -351,10 +351,10 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndNotDisjunct()
         {
-            var rb = RoaringBitmap.Create(CreateMixedListOne());
-            var rb2 = RoaringBitmap.Create(CreateMixedListTwo());
+            var rb = Collections.Special.RoaringBitmap.Create(CreateMixedListOne());
+            var rb2 = Collections.Special.RoaringBitmap.Create(CreateMixedListTwo());
 
-            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            var rb3 = Collections.Special.RoaringBitmap.AndNot(rb, rb2);
             Assert.NotNull(rb3);
             Assert.Equal(rb.ToList(), rb3.ToList());
         }
@@ -362,9 +362,9 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndNotPartiallyArrayContainer()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 200));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(1100, 400));
-            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 200));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1100, 400));
+            var rb3 = Collections.Special.RoaringBitmap.AndNot(rb, rb2);
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
             Assert.Equal(Enumerable.Range(1000, 100), rbList);
@@ -374,9 +374,9 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndNotPartiallyBitmapContainerArrayContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 5000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 5000));
-            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 5000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 5000));
+            var rb3 = Collections.Special.RoaringBitmap.AndNot(rb, rb2);
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
             Assert.Equal(Enumerable.Range(1000, 3000), rbList);
@@ -385,9 +385,9 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void AndNotPartiallyBitmapContainerBitmapContainerResult()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1000, 10000));
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(4000, 10000));
-            var rb3 = RoaringBitmap.AndNot(rb, rb2);
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1000, 10000));
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(4000, 10000));
+            var rb3 = Collections.Special.RoaringBitmap.AndNot(rb, rb2);
             Assert.NotNull(rb3);
             var rbList = rb3.ToList();
             Assert.Equal(Enumerable.Range(1000, 3000), rbList);
@@ -396,20 +396,20 @@ namespace RoaringBitmap.Tests
         [Fact]
         public void BasicCreate()
         {
-            var rb = RoaringBitmap.Create(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
-            var rb2 = RoaringBitmap.Create(Enumerable.Range(1, 10));
+            var rb = Collections.Special.RoaringBitmap.Create(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+            var rb2 = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1, 10));
             Assert.Equal(rb, rb2);
         }
 
         [Fact]
         public void SerializeDeserialize()
         {
-            var rb = RoaringBitmap.Create(Enumerable.Range(1, 100000));
+            var rb = Collections.Special.RoaringBitmap.Create(Enumerable.Range(1, 100000));
             using (var ms = new MemoryStream())
             {
-                RoaringBitmap.Serialize(rb, ms);
+                Collections.Special.RoaringBitmap.Serialize(rb, ms);
                 ms.Position = 0;
-                var rb2 = RoaringBitmap.Deserialize(ms);
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
                 Assert.Equal(rb, rb2);
             }
         }

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace RoaringBitmap
+namespace Collections.Special
 {
     internal abstract class Container
     {

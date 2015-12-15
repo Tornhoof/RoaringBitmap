@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace RoaringBitmap
+namespace Collections.Special
 {
     internal class ArrayContainer : Container, IEquatable<ArrayContainer>
     {

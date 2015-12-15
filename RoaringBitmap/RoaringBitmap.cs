@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace RoaringBitmap
+namespace Collections.Special
 {
     public class RoaringBitmap : IEnumerable<int>, IEquatable<RoaringBitmap>
     {

@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace RoaringBitmap.Benchmark
 {
-    public class ZipRealDataProvider : IEnumerable<RoaringBitmap>, IDisposable
+    public class ZipRealDataProvider : IEnumerable<Collections.Special.RoaringBitmap>, IDisposable
     {
         private readonly ZipArchive m_Archive;
 
@@ -23,7 +23,7 @@ namespace RoaringBitmap.Benchmark
             GC.SuppressFinalize(this);
         }
 
-        public IEnumerator<RoaringBitmap> GetEnumerator()
+        public IEnumerator<Collections.Special.RoaringBitmap> GetEnumerator()
         {
             foreach (var zipArchiveEntry in m_Archive.Entries)
             {
@@ -33,7 +33,7 @@ namespace RoaringBitmap.Benchmark
                     {
                         var split = stringReader.ReadLine().Split(',');
                         var values = split.Select(int.Parse).ToList();
-                        yield return RoaringBitmap.Create(values);
+                        yield return Collections.Special.RoaringBitmap.Create(values);
                     }
                 }
             }

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace RoaringBitmap
+namespace Collections.Special
 {
     internal class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
     {

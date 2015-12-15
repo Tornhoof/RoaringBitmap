@@ -6,7 +6,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
 {
     public abstract class MicroBenchmark
     {
-        private readonly RoaringBitmap[] m_Bitmaps;
+        private readonly Collections.Special.RoaringBitmap[] m_Bitmaps;
 
         protected MicroBenchmark(string fileName)
         {
@@ -57,7 +57,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
             var total = 0;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
             {
-                total += RoaringBitmap.AndNot(m_Bitmaps[k], m_Bitmaps[k + 1]).Cardinality;
+                total += Collections.Special.RoaringBitmap.AndNot(m_Bitmaps[k], m_Bitmaps[k + 1]).Cardinality;
             }
             return total;
         }

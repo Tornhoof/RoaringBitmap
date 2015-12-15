@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/Tornhoof/RoaringBitmap</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>RoaringBitmap for .NET</description>
-    <releaseNotes>Initial version for NuGet</releaseNotes>
+    <releaseNotes>Changed Namespace to Collections.Special to get rid of Namespace=Classname bad practice</releaseNotes>
     <copyright>Copyright RoaringBitmap Contributors 2015</copyright>
     <tags>RoaringBitmap</tags>
   </metadata>

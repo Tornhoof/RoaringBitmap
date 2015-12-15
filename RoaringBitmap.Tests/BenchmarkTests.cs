@@ -170,7 +170,7 @@ namespace RoaringBitmap.Tests
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
             {
-                total += RoaringBitmap.AndNot(bitmaps[k], bitmaps[k + 1]).Cardinality;
+                total += Collections.Special.RoaringBitmap.AndNot(bitmaps[k], bitmaps[k + 1]).Cardinality;
             }
             Assert.Equal(value, total);
         }
@@ -196,9 +196,9 @@ namespace RoaringBitmap.Tests
             {
                 using (var ms = new MemoryStream())
                 {
-                    RoaringBitmap.Serialize(roaringBitmap, ms);
+                    Collections.Special.RoaringBitmap.Serialize(roaringBitmap, ms);
                     ms.Position = 0;
-                    var rb2 = RoaringBitmap.Deserialize(ms);
+                    var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
                     Assert.Equal(roaringBitmap, rb2);
                 }
             }
@@ -207,12 +207,12 @@ namespace RoaringBitmap.Tests
 
         public class BenchmarkTestsFixture
         {
-            private readonly Dictionary<string, RoaringBitmap[]> m_BitmapDictionary = new Dictionary<string, RoaringBitmap[]>();
+            private readonly Dictionary<string, Collections.Special.RoaringBitmap[]> m_BitmapDictionary = new Dictionary<string, Collections.Special.RoaringBitmap[]>();
             private readonly string m_Path = @"Data";
 
-            public RoaringBitmap[] GetBitmaps(string name)
+            public Collections.Special.RoaringBitmap[] GetBitmaps(string name)
             {
-                RoaringBitmap[] bitmaps;
+                Collections.Special.RoaringBitmap[] bitmaps;
                 if (!m_BitmapDictionary.TryGetValue(name, out bitmaps))
                 {
                     using (var provider = new ZipRealDataProvider(Path.Combine(m_Path, name)))
