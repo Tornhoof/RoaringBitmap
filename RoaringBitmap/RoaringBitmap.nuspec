@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
-  <metadata minClientVersion="3.2">
+  <metadata>
     <id>RoaringBitmap</id>
-    <version>0.0.7.0</version>
+    <version>0.0.7.1</version>
     <title>Roaring Bitmap</title>
     <authors>RoaringBitmap Contributors</authors>
     <owners>RoaringBitmap Contributors</owners>
