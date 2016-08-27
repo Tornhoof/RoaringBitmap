@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BenchmarkDotNet;
+using BenchmarkDotNet.Running;
 using RoaringBitmap.Benchmark.MicroBenchmarks;
 
 namespace RoaringBitmap.Benchmark
@@ -11,10 +12,9 @@ namespace RoaringBitmap.Benchmark
         {
             var types = typeof (MicroBenchmark).Assembly.GetTypes().Where(t => !t.IsAbstract && typeof (MicroBenchmark).IsAssignableFrom(t)).ToList();
             //var types = new[] { typeof(MicroBenchmarkCensusIncome) };
-            var bRunner = new BenchmarkRunner();
             foreach (var type in types)
             {
-                bRunner.RunCompetition(Activator.CreateInstance(type));
+                BenchmarkRunner.Run(type);
             }
         }
     }

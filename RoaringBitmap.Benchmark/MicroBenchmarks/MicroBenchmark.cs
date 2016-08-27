@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using BenchmarkDotNet;
+using BenchmarkDotNet.Attributes;
 
 namespace RoaringBitmap.Benchmark.MicroBenchmarks
 {

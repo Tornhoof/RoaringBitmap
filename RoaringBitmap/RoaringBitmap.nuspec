@@ -1,17 +1,28 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata minClientVersion="3.2">
+    <id>RoaringBitmap</id>
+    <version>0.0.7.0</version>
+    <title>Roaring Bitmap</title>
     <authors>RoaringBitmap Contributors</authors>
     <owners>RoaringBitmap Contributors</owners>
     <licenseUrl>https://github.com/Tornhoof/RoaringBitmap/blob/master/LICENSE</licenseUrl>
     <projectUrl>https://github.com/Tornhoof/RoaringBitmap</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>RoaringBitmap for .NET</description>
-    <releaseNotes>Changed Namespace to Collections.Special to get rid of Namespace=Classname bad practice</releaseNotes>
-    <copyright>Copyright RoaringBitmap Contributors 2015</copyright>
+    <releaseNotes>Support for .NET Core (.NET Standard 1.1)</releaseNotes>
+    <copyright>Copyright RoaringBitmap Contributors 2016</copyright>
     <tags>RoaringBitmap</tags>
+    <dependencies>
+      <dependency id="System.Collections" version="4.0.11"/>
+      <dependency id="System.Linq" version="4.1.0"/>
+      <dependency id="System.Runtime" version="4.1.0"/>
+      <dependency id="System.Runtime.Extensions" version="4.1.0"/>
+      <dependency id="System.Runtime.InteropServices" version="4.1.0"/>
+    </dependencies>
   </metadata>
+  <files>
+    <file src="bin\Release\RoaringBitmap.dll" target="lib\netstandard1.1"/>
+	<file src="bin\Release\RoaringBitmap.xml" target="lib\netstandard1.1"/>
+  </files>
 </package>
