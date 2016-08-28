@@ -393,19 +393,17 @@ namespace Collections.Special
 
         public override int GetHashCode()
         {
-            var code = m_Size;
-            code <<= 3;
-            foreach (var i in m_Keys)
+            unchecked
             {
-                code ^= i;
-                code <<= 3;
+                var code = 17;
+                code = code * 23 + m_Size;
+                for (int i = 0; i < m_Size; i++)
+                {
+                    code = code * 23 + m_Keys[i];
+                    code = code * 23 + m_Values[i].GetHashCode();
+                }
+                return code;                
             }
-            foreach (var c in m_Values)
-            {
-                code ^= c.GetHashCode();
-                code <<= 3;
-            }
-            return code;
         }
 
         public static void Serialize(RoaringArray roaringArray, Stream stream)

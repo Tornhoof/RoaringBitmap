@@ -118,11 +118,7 @@ namespace Collections.Special
                 var v = second[i];
                 data[v >> 6] ^= (1UL << v);
             }
-            var cardinality = 0;
-            for (var i = 0; i < data.Length; i++)
-            {
-                cardinality += Util.BitCount(data[i]);
-            }
+            var cardinality = Util.BitCount(data);
             return new BitmapContainer(cardinality, data);
         }
 
@@ -201,61 +197,51 @@ namespace Collections.Special
 
         private static int XorInternal(ulong[] first, ulong[] second)
         {
-            var c = 0;
             for (var k = 0; k < first.Length; k++)
             {
-                var w = first[k] ^ second[k];
-                first[k] = w;
-                c += Util.BitCount(w);
+                first[k] = first[k] ^ second[k];
             }
+            var c = Util.BitCount(first);
             return c;
         }
 
         private static int AndNotInternal(ulong[] first, ulong[] second)
         {
-            var c = 0;
             for (var k = 0; k < first.Length; k++)
             {
-                var w = first[k] & (~second[k]);
-                first[k] = w;
-                c += Util.BitCount(w);
+                first[k] = first[k] & (~second[k]);
             }
+            var c = Util.BitCount(first);
             return c;
         }
 
         private static int NotInternal(ulong[] data)
         {
-            var c = 0;
             for (var k = 0; k < data.Length; k++)
             {
-                var w = ~data[k];
-                data[k] = w;
-                c += Util.BitCount(w);
+                data[k] = ~data[k];
             }
+            var c = Util.BitCount(data);
             return c;
         }
 
         private static int OrInternal(ulong[] first, ulong[] second)
         {
-            var c = 0;
             for (var k = 0; k < first.Length; k++)
             {
-                var w = first[k] | second[k];
-                first[k] = w;
-                c += Util.BitCount(w);
+                first[k] = first[k] | second[k];
             }
+            var c = Util.BitCount(first);
             return c;
         }
 
         private static int AndInternal(ulong[] first, ulong[] second)
         {
-            var c = 0;
             for (var k = 0; k < first.Length; k++)
             {
-                var w = first[k] & second[k];
-                first[k] = w;
-                c += Util.BitCount(w);
+                first[k] = first[k] & second[k];
             }
+            var c = Util.BitCount(first);
             return c;
         }
 
@@ -312,14 +298,16 @@ namespace Collections.Special
 
         public override int GetHashCode()
         {
-            var code = (ulong) m_Cardinality;
-            code <<= 3;
-            foreach (var @ulong in m_Bitmap)
+            unchecked
             {
-                code ^= @ulong;
-                code <<= 3;
+                var code = 17;
+                code = code * 23 + m_Cardinality;
+                for (int i = 0; i < 1024; i++)
+                {
+                    code = code * 23 + m_Bitmap[i].GetHashCode();
+                }
+                return code;
             }
-            return (int) ((code & 0xFFFFFFFF) >> 32);
         }
 
         public static void Serialize(BitmapContainer bc, BinaryWriter binaryWriter)

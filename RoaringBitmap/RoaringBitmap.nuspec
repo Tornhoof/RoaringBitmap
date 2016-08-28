@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>RoaringBitmap</id>
-    <version>0.0.7.1</version>
+    <version>0.0.7.2</version>
     <title>Roaring Bitmap</title>
     <authors>RoaringBitmap Contributors</authors>
     <owners>RoaringBitmap Contributors</owners>
@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/Tornhoof/RoaringBitmap</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>RoaringBitmap for .NET</description>
-    <releaseNotes>Support for .NET Core (.NET Standard 1.1)</releaseNotes>
+    <releaseNotes>Improve GetHashCode()</releaseNotes>
     <copyright>Copyright RoaringBitmap Contributors 2016</copyright>
     <tags>RoaringBitmap</tags>
     <dependencies>

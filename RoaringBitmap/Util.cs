@@ -13,12 +13,28 @@ namespace Collections.Special
         ///  see https://en.wikipedia.org/wiki/Hamming_weight
         ///  Unfortunately there is no popcnt in c#
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int BitCount(ulong x)
         {
             x -= (x >> 1) & 0x5555555555555555UL; //put count of each 2 bits into those 2 bits
             x = (x & 0x3333333333333333UL) + ((x >> 2) & 0x3333333333333333UL); //put count of each 4 bits into those 4 bits 
             x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FUL; //put count of each 8 bits into those 8 bits 
             return (int) ((x * 0x0101010101010101UL) >> 56); //returns left 8 bits of x + (x<<8) + (x<<16) + (x<<24) + ... 
+        }
+
+        /// <summary>
+        ///  see https://en.wikipedia.org/wiki/Hamming_weight
+        ///  Unfortunately there is no popcnt in c#
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int BitCount(ulong[] xArray)
+        {
+            int result = 0;
+            for (int i = 0; i < xArray.Length; i++)
+            {
+                result += BitCount(xArray[i]);
+            }
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

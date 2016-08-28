@@ -22,7 +22,7 @@ namespace Collections.Special
 
         private ArrayContainer(int cardinality)
         {
-           m_Content = new ushort[cardinality];
+            m_Content = new ushort[cardinality];
             m_Cardinality = cardinality;
         }
 
@@ -235,14 +235,16 @@ namespace Collections.Special
 
         public override int GetHashCode()
         {
-            var code = m_Cardinality;
-            code <<= 3;
-            foreach (var @ushort in m_Content)
+            unchecked
             {
-                code ^= @ushort;
-                code <<= 3;
+                var code = 17;
+                code = code * 23 + m_Cardinality;
+                for (int i = 0; i < m_Cardinality; i++)
+                {
+                    code = code * 23 + m_Content[i];
+                }
+                return code;
             }
-            return code;
         }
 
         public static void Serialize(ArrayContainer ac, BinaryWriter binaryWriter)
