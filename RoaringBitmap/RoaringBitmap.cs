@@ -30,13 +30,9 @@ namespace Collections.Special
         public bool Equals(RoaringBitmap other)
         {
             if (ReferenceEquals(this, other))
-            {
                 return true;
-            }
             if (ReferenceEquals(null, other))
-            {
                 return false;
-            }
             return m_HighLowContainer.Equals(other.m_HighLowContainer);
         }
 
@@ -53,15 +49,11 @@ namespace Collections.Special
             var size = 0;
             foreach (var group in groupbyHb)
             {
-                keys.Add(@group.Key);
+                keys.Add(group.Key);
                 if (group.Count() > Container.MaxSize)
-                {
-                    containers.Add(BitmapContainer.Create(@group.Select(Util.LowBits).ToArray()));
-                }
+                    containers.Add(BitmapContainer.Create(group.Select(Util.LowBits).ToArray()));
                 else
-                {
-                    containers.Add(ArrayContainer.Create(@group.Select(Util.LowBits).ToArray()));
-                }
+                    containers.Add(ArrayContainer.Create(group.Select(Util.LowBits).ToArray()));
                 size++;
             }
             return new RoaringBitmap(new RoaringArray(size, keys, containers));
@@ -96,7 +88,7 @@ namespace Collections.Special
         public override bool Equals(object obj)
         {
             var ra = obj as RoaringArray;
-            return ra != null && Equals(ra);
+            return (ra != null) && Equals(ra);
         }
 
         public override int GetHashCode()

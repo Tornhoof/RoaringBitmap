@@ -37,9 +37,7 @@ namespace RoaringBitmap.Tests
             Assert.NotNull(bitmaps);
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
-            {
                 total += (bitmaps[k] | bitmaps[k + 1]).Cardinality;
-            }
             Assert.Equal(value, total);
         }
 
@@ -62,9 +60,7 @@ namespace RoaringBitmap.Tests
             Assert.NotNull(bitmaps);
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
-            {
                 total += (bitmaps[k] ^ bitmaps[k + 1]).Cardinality;
-            }
             Assert.Equal(value, total);
         }
 
@@ -87,9 +83,7 @@ namespace RoaringBitmap.Tests
             Assert.NotNull(bitmaps);
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
-            {
                 total += (bitmaps[k] & bitmaps[k + 1]).Cardinality;
-            }
             Assert.Equal(value, total);
         }
 
@@ -112,15 +106,11 @@ namespace RoaringBitmap.Tests
             Assert.NotNull(bitmaps);
             var total = 0;
             foreach (var roaringBitmap in bitmaps)
-            {
                 foreach (var @int in roaringBitmap)
-                {
                     unchecked
                     {
                         total += @int;
                     }
-                }
-            }
             Assert.Equal(value, total);
         }
 
@@ -146,7 +136,7 @@ namespace RoaringBitmap.Tests
             foreach (var roaringBitmap in bitmaps)
             {
                 var doublenegated = ~~roaringBitmap;
-                Assert.Equal(roaringBitmap, doublenegated);             
+                Assert.Equal(roaringBitmap, doublenegated);
             }
         }
 
@@ -169,9 +159,7 @@ namespace RoaringBitmap.Tests
             Assert.NotNull(bitmaps);
             var total = 0;
             for (var k = 0; k < bitmaps.Length - 1; k++)
-            {
                 total += Collections.Special.RoaringBitmap.AndNot(bitmaps[k], bitmaps[k + 1]).Cardinality;
-            }
             Assert.Equal(value, total);
         }
 
@@ -193,7 +181,6 @@ namespace RoaringBitmap.Tests
             var bitmaps = m_Fixture.GetBitmaps(name);
             Assert.NotNull(bitmaps);
             foreach (var roaringBitmap in bitmaps)
-            {
                 using (var ms = new MemoryStream())
                 {
                     Collections.Special.RoaringBitmap.Serialize(roaringBitmap, ms);
@@ -201,7 +188,6 @@ namespace RoaringBitmap.Tests
                     var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
                     Assert.Equal(roaringBitmap, rb2);
                 }
-            }
         }
 
 
@@ -214,13 +200,11 @@ namespace RoaringBitmap.Tests
             {
                 Collections.Special.RoaringBitmap[] bitmaps;
                 if (!m_BitmapDictionary.TryGetValue(name, out bitmaps))
-                {
                     using (var provider = new ZipRealDataProvider(Path.Combine(m_Path, name)))
                     {
                         bitmaps = provider.ToArray();
                         m_BitmapDictionary[name] = bitmaps;
                     }
-                }
                 return bitmaps;
             }
         }

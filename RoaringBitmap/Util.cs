@@ -10,8 +10,8 @@ namespace Collections.Special
     internal static class Util
     {
         /// <summary>
-        ///  see https://en.wikipedia.org/wiki/Hamming_weight
-        ///  Unfortunately there is no popcnt in c#
+        ///     see https://en.wikipedia.org/wiki/Hamming_weight
+        ///     Unfortunately there is no popcnt in c#
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int BitCount(ulong x)
@@ -23,24 +23,22 @@ namespace Collections.Special
         }
 
         /// <summary>
-        ///  see https://en.wikipedia.org/wiki/Hamming_weight
-        ///  Unfortunately there is no popcnt in c#
+        ///     see https://en.wikipedia.org/wiki/Hamming_weight
+        ///     Unfortunately there is no popcnt in c#
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int BitCount(ulong[] xArray)
         {
-            int result = 0;
-            for (int i = 0; i < xArray.Length; i++)
-            {
+            var result = 0;
+            for (var i = 0; i < xArray.Length; i++)
                 result += BitCount(xArray[i]);
-            }
             return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void ArrayCopy(ushort[] input, int iStart, ushort[] output, int oStart, int length)
         {
-            Buffer.BlockCopy(input, iStart*sizeof(ushort), output, oStart*sizeof(ushort), length*sizeof(ushort));
+            Buffer.BlockCopy(input, iStart * sizeof(ushort), output, oStart * sizeof(ushort), length * sizeof(ushort));
         }
 
         public static int UnionArrays(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
@@ -116,21 +114,16 @@ namespace Collections.Special
                 return length1;
             }
             if (0 == length1)
-            {
                 return 0;
-            }
             var s1 = set1[k1];
             var s2 = set2[k2];
             while (true)
-            {
                 if (s1 < s2)
                 {
                     buffer[pos++] = s1;
                     ++k1;
                     if (k1 >= length1)
-                    {
                         break;
-                    }
                     s1 = set1[k1];
                 }
                 else if (s1 == s2)
@@ -138,9 +131,7 @@ namespace Collections.Special
                     ++k1;
                     ++k2;
                     if (k1 >= length1)
-                    {
                         break;
-                    }
                     if (k2 >= length2)
                     {
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
@@ -159,29 +150,22 @@ namespace Collections.Special
                     }
                     s2 = set2[k2];
                 }
-            }
             return pos;
         }
 
         public static int IntersectArrays(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
             if (set1.Length << 6 < set2.Length)
-            {
                 return OneSidedGallopingIntersect2By2(set1, length1, set2, length2, buffer);
-            }
             if (set2.Length << 6 < set1.Length)
-            {
                 return OneSidedGallopingIntersect2By2(set2, length2, set1, length1, buffer);
-            }
             return LocalIntersect2By2(set1, length1, set2, length2, buffer);
         }
 
         private static int LocalIntersect2By2(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
             if ((0 == length1) || (0 == length2))
-            {
                 return 0;
-            }
             var k1 = 0;
             var k2 = 0;
             var pos = 0;
@@ -193,27 +177,21 @@ namespace Collections.Special
                 int v1 = s1;
                 int v2 = s2;
                 if (v2 < v1)
-                {
                     do
                     {
                         ++k2;
                         if (k2 == length2)
-                        {
                             return pos;
-                        }
                         s2 = set2[k2];
                         v2 = s2;
                     } while (v2 < v1);
-                }
                 if (v1 < v2)
                 {
                     do
                     {
                         ++k1;
                         if (k1 == length1)
-                        {
                             return pos;
-                        }
                         s1 = set1[k1];
                         v1 = s1;
                     } while (v1 < v2);
@@ -223,14 +201,10 @@ namespace Collections.Special
                     buffer[pos++] = s1;
                     ++k1;
                     if (k1 == length1)
-                    {
                         break;
-                    }
                     ++k2;
                     if (k2 == length2)
-                    {
                         break;
-                    }
                     s1 = set1[k1];
                     s2 = set2[k2];
                 }
@@ -241,9 +215,7 @@ namespace Collections.Special
         private static int OneSidedGallopingIntersect2By2(ushort[] smallSet, int smallLength, ushort[] largeSet, int largeLength, ushort[] buffer)
         {
             if (0 == smallLength)
-            {
                 return 0;
-            }
             var k1 = 0;
             var k2 = 0;
             var pos = 0;
@@ -255,18 +227,14 @@ namespace Collections.Special
                 {
                     k1 = AdvanceUntil(largeSet, k1, largeLength, s2);
                     if (k1 == largeLength)
-                    {
                         break;
-                    }
                     s1 = largeSet[k1];
                 }
                 if (s2 < s1)
                 {
                     ++k2;
                     if (k2 == smallLength)
-                    {
                         break;
-                    }
                     s2 = smallSet[k2];
                 }
                 else // (set2[k2] == set1[k1])
@@ -274,15 +242,11 @@ namespace Collections.Special
                     buffer[pos++] = s2;
                     ++k2;
                     if (k2 == smallLength)
-                    {
                         break;
-                    }
                     s2 = smallSet[k2];
                     k1 = AdvanceUntil(largeSet, k1, largeLength, s2);
                     if (k1 == largeLength)
-                    {
                         break;
-                    }
                     s1 = largeSet[k1];
                 }
             }
@@ -298,10 +262,8 @@ namespace Collections.Special
         public static int AdvanceUntil(ushort[] array, int pos, int length, ushort min)
         {
             var start = pos + 1; // check the next one
-            if (start >= length || array[start] >= min) // the simple cases
-            {
+            if ((start >= length) || (array[start] >= min)) // the simple cases
                 return start;
-            }
             var result = Array.BinarySearch(array, start, length - start, min);
             return result < 0 ? ~result : result;
         }
@@ -335,7 +297,6 @@ namespace Collections.Special
             var s1 = set1[k1];
             var s2 = set2[k2];
             while (true)
-            {
                 if (s1 < s2)
                 {
                     buffer[pos++] = s1;
@@ -375,7 +336,6 @@ namespace Collections.Special
                     }
                     s2 = set2[k2];
                 }
-            }
         }
     }
 }

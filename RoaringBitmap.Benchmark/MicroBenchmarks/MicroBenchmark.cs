@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Linq;
-using BenchmarkDotNet;
 using BenchmarkDotNet.Attributes;
 
 namespace RoaringBitmap.Benchmark.MicroBenchmarks
 {
+    [Config(typeof(MemoryConfig))]
     public abstract class MicroBenchmark
     {
         private readonly Collections.Special.RoaringBitmap[] m_Bitmaps;
@@ -24,9 +24,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         {
             var total = 0;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
-            {
                 total += (m_Bitmaps[k] | m_Bitmaps[k + 1]).Cardinality;
-            }
             return total;
         }
 
@@ -35,9 +33,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         {
             var total = 0;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
-            {
                 total += (m_Bitmaps[k] ^ m_Bitmaps[k + 1]).Cardinality;
-            }
             return total;
         }
 
@@ -46,9 +42,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         {
             var total = 0;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
-            {
                 total += (m_Bitmaps[k] & m_Bitmaps[k + 1]).Cardinality;
-            }
             return total;
         }
 
@@ -57,9 +51,7 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         {
             var total = 0;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
-            {
                 total += Collections.Special.RoaringBitmap.AndNot(m_Bitmaps[k], m_Bitmaps[k + 1]).Cardinality;
-            }
             return total;
         }
 
@@ -69,15 +61,11 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         {
             var total = 0;
             foreach (var roaringBitmap in m_Bitmaps)
-            {
                 foreach (var @int in roaringBitmap)
-                {
                     unchecked
                     {
                         total += @int;
                     }
-                }
-            }
             return total;
         }
     }

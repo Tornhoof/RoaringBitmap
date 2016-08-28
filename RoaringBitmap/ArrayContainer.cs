@@ -14,22 +14,8 @@ namespace Collections.Special
         {
             var data = new ushort[MaxSize];
             for (ushort i = 0; i < MaxSize; i++)
-            {
                 data[i] = i;
-            }
             One = new ArrayContainer(MaxSize, data);
-        }
-
-        private ArrayContainer(int cardinality)
-        {
-            m_Content = new ushort[cardinality];
-            m_Cardinality = cardinality;
-        }
-
-        private ArrayContainer(int cardinality, Func<ushort[], int> functor)
-        {
-            m_Content = new ushort[cardinality];
-            m_Cardinality = functor(m_Content);
         }
 
         private ArrayContainer(int cardinality, ushort[] data)
@@ -44,28 +30,16 @@ namespace Collections.Special
         public bool Equals(ArrayContainer other)
         {
             if (ReferenceEquals(this, other))
-            {
                 return true;
-            }
             if (ReferenceEquals(null, other))
-            {
                 return false;
-            }
             if (m_Cardinality != other.m_Cardinality)
-            {
                 return false;
-            }
             if (m_Content.Length != other.m_Content.Length)
-            {
                 return false;
-            }
             for (var i = 0; i < m_Content.Length; i++)
-            {
                 if (m_Content[i] != other.m_Content[i])
-                {
                     return false;
-                }
-            }
             return true;
         }
 
@@ -74,23 +48,26 @@ namespace Collections.Special
             return new ArrayContainer(values.Length, values);
         }
 
-        internal static ArrayContainer Create(int cardinality, BitmapContainer bc)
+        internal static ArrayContainer Create(BitmapContainer bc)
         {
-            return new ArrayContainer(cardinality, bc.FillArray);
+            var data = new ushort[bc.Cardinality];
+            var cardinality = bc.FillArray(data);
+            var result = new ArrayContainer(cardinality, data);
+            return result;
         }
 
         public override IEnumerator<ushort> GetEnumerator()
         {
             for (var i = 0; i < m_Cardinality; i++)
-            {
                 yield return m_Content[i];
-            }
         }
 
         public static Container operator &(ArrayContainer x, ArrayContainer y)
         {
             var desiredCapacity = Math.Min(x.m_Cardinality, y.m_Cardinality);
-            return new ArrayContainer(desiredCapacity, buffer => Util.IntersectArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
+            var data = new ushort[desiredCapacity];
+            var calculatedCardinality = Util.IntersectArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
+            return new ArrayContainer(calculatedCardinality, data);
         }
 
         public static ArrayContainer operator &(ArrayContainer x, BitmapContainer y)
@@ -102,9 +79,7 @@ namespace Collections.Special
             {
                 var v = x.m_Content[i];
                 if (y.Contains(v))
-                {
                     data[pos++] = v;
-                }
             }
             return new ArrayContainer(pos, data);
         }
@@ -117,13 +92,13 @@ namespace Collections.Special
                 var output = new ushort[totalCardinality];
                 var calcCardinality = Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, output);
                 if (calcCardinality > MaxSize)
-                {
                     return BitmapContainer.Create(calcCardinality, output);
-                }
                 return new ArrayContainer(calcCardinality, output);
             }
             var desiredCapacity = totalCardinality;
-            return new ArrayContainer(desiredCapacity, buffer => Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
+            var data = new ushort[desiredCapacity];
+            var calculatedCardinality = Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
+            return new ArrayContainer(calculatedCardinality, data);
         }
 
         public static Container operator |(ArrayContainer x, BitmapContainer y)
@@ -143,12 +118,12 @@ namespace Collections.Special
             {
                 var bc = BitmapContainer.CreateXor(x.m_Content, x.Cardinality, y.m_Content, y.Cardinality);
                 if (bc.Cardinality <= MaxSize)
-                {
-                    return new ArrayContainer(bc.Cardinality, bc.FillArray);
-                }
+                    Create(bc);
             }
             var desiredCapacity = totalCardinality;
-            return new ArrayContainer(desiredCapacity, buffer => Util.XorArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
+            var data = new ushort[desiredCapacity];
+            var calculatedCardinality = Util.XorArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
+            return new ArrayContainer(calculatedCardinality, data);
         }
 
         public static Container operator ^(ArrayContainer x, BitmapContainer y)
@@ -159,7 +134,9 @@ namespace Collections.Special
         public static Container AndNot(ArrayContainer x, ArrayContainer y)
         {
             var desiredCapacity = x.m_Cardinality;
-            return new ArrayContainer(desiredCapacity, buffer => Util.DifferenceArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, buffer));
+            var data = new ushort[desiredCapacity];
+            var calculatedCardinality = Util.DifferenceArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
+            return new ArrayContainer(calculatedCardinality, data);
         }
 
         public static Container AndNot(ArrayContainer x, BitmapContainer y)
@@ -171,9 +148,7 @@ namespace Collections.Special
             {
                 var v = x.m_Content[i];
                 if (!y.Contains(v))
-                {
                     data[pos++] = v;
-                }
             }
             return new ArrayContainer(pos, data);
         }
@@ -203,7 +178,7 @@ namespace Collections.Special
                 var yValue = m_Content[i];
                 var index = yValue >> 6;
                 var previous = bitmap[index];
-                var mask = (1UL << yValue);
+                var mask = 1UL << yValue;
                 bitmap[index] = previous ^ mask;
                 extraCardinality += (int) (1 - 2 * ((previous & mask) >> yValue));
             }
@@ -220,9 +195,9 @@ namespace Collections.Special
                 var yValue = m_Content[i];
                 var index = yValue >> 6;
                 var previous = bitmap[index];
-                var after = previous & (~(1UL << yValue));
+                var after = previous & ~(1UL << yValue);
                 bitmap[index] = after;
-                extraCardinality -= (int) (((previous ^ after) >> yValue));
+                extraCardinality -= (int) ((previous ^ after) >> yValue);
             }
             return extraCardinality;
         }
@@ -230,7 +205,7 @@ namespace Collections.Special
         public override bool Equals(object obj)
         {
             var ac = obj as ArrayContainer;
-            return ac != null && Equals(ac);
+            return (ac != null) && Equals(ac);
         }
 
         public override int GetHashCode()
@@ -239,10 +214,8 @@ namespace Collections.Special
             {
                 var code = 17;
                 code = code * 23 + m_Cardinality;
-                for (int i = 0; i < m_Cardinality; i++)
-                {
+                for (var i = 0; i < m_Cardinality; i++)
                     code = code * 23 + m_Content[i];
-                }
                 return code;
             }
         }
@@ -250,10 +223,8 @@ namespace Collections.Special
         public static void Serialize(ArrayContainer ac, BinaryWriter binaryWriter)
         {
             binaryWriter.Write(ac.m_Cardinality);
-            for (var i = 0; i < ac.m_Cardinality;i++)
-            {
+            for (var i = 0; i < ac.m_Cardinality; i++)
                 binaryWriter.Write(ac.m_Content[i]);
-            }
         }
 
         public static ArrayContainer Deserialize(BinaryReader binaryReader)
@@ -261,9 +232,7 @@ namespace Collections.Special
             var cardinality = binaryReader.ReadInt32();
             var data = new ushort[cardinality];
             for (var i = 0; i < cardinality; i++)
-            {
                 data[i] = binaryReader.ReadUInt16();
-            }
             return new ArrayContainer(cardinality, data);
         }
     }

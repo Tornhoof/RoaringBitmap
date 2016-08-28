@@ -32,17 +32,24 @@ The RoaringBitmap.Benchmark project contains microbenchmarks for the real-roarin
 
 
 ```ini
-BenchmarkDotNet=v0.7.8.0
-OS=Microsoft Windows NT 6.2.9200.0
-Processor=Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz, ProcessorCount=8
-HostCLR=MS.NET 4.0.30319.42000, Arch=64-bit  [RyuJIT]
-Type=MicroBenchmarkCensusIncome  Mode=Throughput  Platform=HostPlatform  Jit=HostJit  .NET=HostFramework
-```
 
-  Method |    AvrTime |    StdDev |   op/s |
--------- |----------- |---------- |------- |
-     And |  2.2842 ms | 0.0125 ms | 437.79 |
-  AndNot |  2.3849 ms | 0.0135 ms | 419.31 |
- Iterate | 89.8270 ms | 0.1454 ms |  11.13 |
-      Or |  2.2951 ms | 0.0253 ms | 435.70 |
-     Xor |  2.3010 ms | 0.0175 ms | 434.60 |
+Host Process Environment Information:
+BenchmarkDotNet.Core=v0.9.9.0
+OS=Microsoft Windows NT 6.2.9200.0
+Processor=Intel(R) Core(TM) i7-4790K CPU 4.00GHz, ProcessorCount=8
+Frequency=3906250 ticks, Resolution=256.0000 ns, Timer=TSC
+CLR=MS.NET 4.0.30319.42000, Arch=64-bit RELEASE [RyuJIT]
+GC=Concurrent Workstation
+JitModules=clrjit-v4.6.1586.0
+
+Type=MicroBenchmarkCensusIncome  Mode=Throughput  
+
+```
+  Method |     Median |    StdDev | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
+-------- |----------- |---------- |------ |------ |------ |------------------- |
+      Or |  2.2656 ms | 0.0079 ms | 94.15 |  1.68 |  3.30 |       2.708.059,64 |
+     Xor |  2.4074 ms | 0.0085 ms | 84.24 |  1.79 |  3.50 |       2.457.820,69 |
+     And |  2.2318 ms | 0.0033 ms | 26.30 |  1.72 |  3.36 |         840.223,48 |
+  AndNot |  2.3633 ms | 0.0036 ms | 56.54 |  1.91 |  3.74 |       1.705.377,83 |
+ Iterate | 88.0278 ms | 0.0888 ms | 33.00 | 49.00 | 96.00 |       6.331.163,29 |
+

@@ -15,9 +15,7 @@ namespace Collections.Special
         {
             var data = new ulong[1024];
             for (var i = 0; i < data.Length; i++)
-            {
                 data[i] = ulong.MaxValue;
-            }
             One = new BitmapContainer(1 << 16, data);
         }
 
@@ -38,9 +36,7 @@ namespace Collections.Special
             if (negated)
             {
                 for (var i = 0; i < m_Bitmap.Length; i++)
-                {
                     m_Bitmap[i] = ulong.MaxValue;
-                }
                 for (var i = 0; i < cardinality; i++)
                 {
                     var v = values[i];
@@ -52,7 +48,7 @@ namespace Collections.Special
                 for (var i = 0; i < cardinality; i++)
                 {
                     var v = values[i];
-                    m_Bitmap[v >> 6] |= (1UL << v);
+                    m_Bitmap[v >> 6] |= 1UL << v;
                 }
             }
         }
@@ -62,28 +58,16 @@ namespace Collections.Special
         public bool Equals(BitmapContainer other)
         {
             if (ReferenceEquals(this, other))
-            {
                 return true;
-            }
             if (ReferenceEquals(null, other))
-            {
                 return false;
-            }
             if (m_Cardinality != other.m_Cardinality)
-            {
                 return false;
-            }
             if (m_Bitmap.Length != other.m_Bitmap.Length)
-            {
                 return false;
-            }
             for (var i = 0; i < m_Bitmap.Length; i++)
-            {
                 if (m_Bitmap[i] != other.m_Bitmap[i])
-                {
                     return false;
-                }
-            }
             return true;
         }
 
@@ -110,32 +94,33 @@ namespace Collections.Special
             for (var i = 0; i < firstCardinality; i++)
             {
                 var v = first[i];
-                data[v >> 6] ^= (1UL << v);
+                data[v >> 6] ^= 1UL << v;
             }
 
             for (var i = 0; i < secondCardinality; i++)
             {
                 var v = second[i];
-                data[v >> 6] ^= (1UL << v);
+                data[v >> 6] ^= 1UL << v;
             }
             var cardinality = Util.BitCount(data);
             return new BitmapContainer(cardinality, data);
         }
 
         /// <summary>
-        /// Java version has an optimized version of this, but it's using bitcount internally which should make it slower in .NET
+        ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
+        ///     .NET
         /// </summary>
         public static Container operator &(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
         private static ulong[] Clone(ulong[] data)
         {
             var result = new ulong[data.Length];
-            Buffer.BlockCopy(data, 0, result, 0, data.Length * sizeof (ulong));
+            Buffer.BlockCopy(data, 0, result, 0, data.Length * sizeof(ulong));
             return result;
         }
 
@@ -160,17 +145,18 @@ namespace Collections.Special
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(NotInternal(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
         /// <summary>
-        /// Java version has an optimized version of this, but it's using bitcount internally which should make it slower in .NET
+        ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
+        ///     .NET
         /// </summary>
         public static Container operator ^(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
 
@@ -178,29 +164,27 @@ namespace Collections.Special
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.XorArray(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
         public static Container AndNot(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndNotInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
         public static Container AndNot(BitmapContainer x, ArrayContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.AndNotArray(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc.Cardinality, bc) : bc;
+            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
         }
 
         private static int XorInternal(ulong[] first, ulong[] second)
         {
             for (var k = 0; k < first.Length; k++)
-            {
                 first[k] = first[k] ^ second[k];
-            }
             var c = Util.BitCount(first);
             return c;
         }
@@ -208,9 +192,7 @@ namespace Collections.Special
         private static int AndNotInternal(ulong[] first, ulong[] second)
         {
             for (var k = 0; k < first.Length; k++)
-            {
-                first[k] = first[k] & (~second[k]);
-            }
+                first[k] = first[k] & ~second[k];
             var c = Util.BitCount(first);
             return c;
         }
@@ -218,9 +200,7 @@ namespace Collections.Special
         private static int NotInternal(ulong[] data)
         {
             for (var k = 0; k < data.Length; k++)
-            {
                 data[k] = ~data[k];
-            }
             var c = Util.BitCount(data);
             return c;
         }
@@ -228,9 +208,7 @@ namespace Collections.Special
         private static int OrInternal(ulong[] first, ulong[] second)
         {
             for (var k = 0; k < first.Length; k++)
-            {
                 first[k] = first[k] | second[k];
-            }
             var c = Util.BitCount(first);
             return c;
         }
@@ -238,9 +216,7 @@ namespace Collections.Special
         private static int AndInternal(ulong[] first, ulong[] second)
         {
             for (var k = 0; k < first.Length; k++)
-            {
                 first[k] = first[k] & second[k];
-            }
             var c = Util.BitCount(first);
             return c;
         }
@@ -293,7 +269,7 @@ namespace Collections.Special
         public override bool Equals(object obj)
         {
             var bc = obj as BitmapContainer;
-            return bc != null && Equals(bc);
+            return (bc != null) && Equals(bc);
         }
 
         public override int GetHashCode()
@@ -302,10 +278,8 @@ namespace Collections.Special
             {
                 var code = 17;
                 code = code * 23 + m_Cardinality;
-                for (int i = 0; i < 1024; i++)
-                {
+                for (var i = 0; i < 1024; i++)
                     code = code * 23 + m_Bitmap[i].GetHashCode();
-                }
                 return code;
             }
         }
@@ -314,9 +288,7 @@ namespace Collections.Special
         {
             binaryWriter.Write(bc.m_Cardinality);
             for (var i = 0; i < 1024; i++)
-            {
                 binaryWriter.Write(bc.m_Bitmap[i]);
-            }
         }
 
         public static BitmapContainer Deserialize(BinaryReader binaryReader)
@@ -324,9 +296,7 @@ namespace Collections.Special
             var cardinality = binaryReader.ReadInt32();
             var data = new ulong[1024];
             for (var i = 0; i < 1024; i++)
-            {
                 data[i] = binaryReader.ReadUInt64();
-            }
             return new BitmapContainer(cardinality, data);
         }
     }
