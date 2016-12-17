@@ -1,12 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Collections.Special
 {
-    internal abstract class Container
+    internal abstract class Container : IEquatable<Container>
     {
-        public static int MaxSize = 4096; // everything <= is an ArrayContainer
+        public const int MaxSize = 4096; // everything <= is an ArrayContainer
+        public const int Value16Bit = 1 << 16;
 
         protected internal abstract int Cardinality { get; }
+
+        protected abstract bool EqualsInternal(Container other);
 
         public abstract IEnumerator<ushort> GetEnumerator();
 
@@ -15,11 +19,17 @@ namespace Collections.Special
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
             if ((xArrayContainer != null) && (yArrayContainer != null))
+            {
                 return xArrayContainer | yArrayContainer;
+            }
             if (xArrayContainer != null)
+            {
                 return xArrayContainer | (BitmapContainer) y;
+            }
             if (yArrayContainer != null)
+            {
                 return (BitmapContainer) x | yArrayContainer;
+            }
             return (BitmapContainer) x | (BitmapContainer) y;
         }
 
@@ -28,11 +38,17 @@ namespace Collections.Special
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
             if ((xArrayContainer != null) && (yArrayContainer != null))
+            {
                 return xArrayContainer & yArrayContainer;
+            }
             if (xArrayContainer != null)
+            {
                 return xArrayContainer & (BitmapContainer) y;
+            }
             if (yArrayContainer != null)
+            {
                 return (BitmapContainer) x & yArrayContainer;
+            }
             return (BitmapContainer) x & (BitmapContainer) y;
         }
 
@@ -41,11 +57,17 @@ namespace Collections.Special
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
             if ((xArrayContainer != null) && (yArrayContainer != null))
+            {
                 return xArrayContainer ^ yArrayContainer;
+            }
             if (xArrayContainer != null)
+            {
                 return xArrayContainer ^ (BitmapContainer) y;
+            }
             if (yArrayContainer != null)
+            {
                 return (BitmapContainer) x ^ yArrayContainer;
+            }
             return (BitmapContainer) x ^ (BitmapContainer) y;
         }
 
@@ -60,12 +82,31 @@ namespace Collections.Special
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
             if ((xArrayContainer != null) && (yArrayContainer != null))
+            {
                 return ArrayContainer.AndNot(xArrayContainer, yArrayContainer);
+            }
             if (xArrayContainer != null)
+            {
                 return ArrayContainer.AndNot(xArrayContainer, (BitmapContainer) y);
+            }
             if (yArrayContainer != null)
+            {
                 return BitmapContainer.AndNot((BitmapContainer) x, yArrayContainer);
+            }
             return BitmapContainer.AndNot((BitmapContainer) x, (BitmapContainer) y);
+        }
+
+        public bool Equals(Container other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            return EqualsInternal(other);
         }
     }
 }

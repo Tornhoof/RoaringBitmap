@@ -35,10 +35,13 @@ namespace Collections.Special
             m_Size = size;
             m_Keys = keys;
             m_Values = containers;
-            Cardinality = m_Values.Sum(t => t.Cardinality);
+            for (int i = 0; i < containers.Length; i++)
+            {
+                Cardinality += containers[i].Cardinality;
+            }
         }
 
-        public int Cardinality { get; }
+        public long Cardinality { get; }
 
         public IEnumerator<int> GetEnumerator()
         {
@@ -48,7 +51,9 @@ namespace Collections.Special
                 var shiftedKey = key << 16;
                 var container = m_Values[i];
                 foreach (var @ushort in container)
+                {
                     yield return shiftedKey | @ushort;
+                }
             }
         }
 
@@ -60,21 +65,39 @@ namespace Collections.Special
         public bool Equals(RoaringArray other)
         {
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
             if (m_Size != other.m_Size)
+            {
                 return false;
+            }
             if (m_Keys.Length != other.m_Keys.Length)
+            {
                 return false;
+            }
             if (m_Values.Length != other.m_Values.Length)
+            {
                 return false;
+            }
             for (var i = 0; i < m_Keys.Length; i++)
+            {
                 if (m_Keys[i] != other.m_Keys[i])
+                {
                     return false;
+                }
+            }
             for (var i = 0; i < m_Values.Length; i++)
+            {
                 if (!m_Values[i].Equals(other.m_Values[i]))
+                {
                     return false;
+                }
+            }
             return true;
         }
 
@@ -97,6 +120,7 @@ namespace Collections.Special
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
                 while (true)
+                {
                     if (xKey == yKey)
                     {
                         keys.Add(xKey);
@@ -105,7 +129,9 @@ namespace Collections.Special
                         xPos++;
                         yPos++;
                         if ((xPos == xLength) || (yPos == yLength))
+                        {
                             break;
+                        }
                         xKey = x.m_Keys[xPos];
                         yKey = y.m_Keys[yPos];
                     }
@@ -116,7 +142,9 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         if (xPos == xLength)
+                        {
                             break;
+                        }
                         xKey = x.m_Keys[xPos];
                     }
                     else
@@ -126,24 +154,31 @@ namespace Collections.Special
                         size++;
                         yPos++;
                         if (yPos == yLength)
+                        {
                             break;
+                        }
                         yKey = y.m_Keys[yPos];
                     }
+                }
             }
             if (xPos == xLength)
+            {
                 for (var i = yPos; i < yLength; i++)
                 {
                     keys.Add(y.m_Keys[i]);
                     containers.Add(y.m_Values[i]);
                     size++;
                 }
+            }
             else if (yPos == yLength)
+            {
                 for (var i = xPos; i < xLength; i++)
                 {
                     keys.Add(x.m_Keys[i]);
                     containers.Add(x.m_Values[i]);
                     size++;
                 }
+            }
             return new RoaringArray(size, keys, containers);
         }
 
@@ -204,6 +239,7 @@ namespace Collections.Special
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
                 while (true)
+                {
                     if (xKey == yKey)
                     {
                         keys.Add(xKey);
@@ -212,7 +248,9 @@ namespace Collections.Special
                         xPos++;
                         yPos++;
                         if ((xPos == xLength) || (yPos == yLength))
+                        {
                             break;
+                        }
                         xKey = x.m_Keys[xPos];
                         yKey = y.m_Keys[yPos];
                     }
@@ -223,7 +261,9 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         if (xPos == xLength)
+                        {
                             break;
+                        }
                         xKey = x.m_Keys[xPos];
                     }
                     else
@@ -233,39 +273,47 @@ namespace Collections.Special
                         size++;
                         yPos++;
                         if (yPos == yLength)
+                        {
                             break;
+                        }
                         yKey = y.m_Keys[yPos];
                     }
+                }
             }
             if (xPos == xLength)
+            {
                 for (var i = yPos; i < yLength; i++)
                 {
                     keys.Add(y.m_Keys[i]);
                     containers.Add(y.m_Values[i]);
                     size++;
                 }
+            }
             else if (yPos == yLength)
+            {
                 for (var i = xPos; i < xLength; i++)
                 {
                     keys.Add(x.m_Keys[i]);
                     containers.Add(x.m_Values[i]);
                     size++;
                 }
+            }
             return new RoaringArray(size, keys, containers);
         }
 
         public static RoaringArray operator ~(RoaringArray x)
         {
-            var keys = new List<ushort>(ushort.MaxValue);
+            var keys = new List<ushort>(Container.Value16Bit);
             var size = 0;
-            var containers = new List<Container>(ushort.MaxValue);
+            var containers = new List<Container>(Container.Value16Bit);
             var oldIndex = 0;
-            for (ushort i = 0; i < ushort.MaxValue; i++)
+            for (int i = 0; i < Container.Value16Bit; i++)
             {
-                var index = Array.BinarySearch(x.m_Keys, oldIndex, x.m_Size - oldIndex, i);
+                var ushortI = (ushort) i;
+                var index = Array.BinarySearch(x.m_Keys, oldIndex, x.m_Size - oldIndex, ushortI);
                 if (index < 0)
                 {
-                    keys.Add(i);
+                    keys.Add(ushortI);
                     containers.Add(BitmapContainer.One);
                     size++;
                 }
@@ -277,7 +325,7 @@ namespace Collections.Special
                         var nc = ~c;
                         if (nc.Cardinality > 0)
                         {
-                            keys.Add(i);
+                            keys.Add(ushortI);
                             containers.Add(nc);
                             size++;
                         }
@@ -330,12 +378,14 @@ namespace Collections.Special
                 }
             }
             if (yPos == yLength)
+            {
                 for (var i = xPos; i < xLength; i++)
                 {
                     keys.Add(x.m_Keys[i]);
                     containers.Add(x.m_Values[i]);
                     size++;
                 }
+            }
             return new RoaringArray(size, keys, containers);
         }
 
@@ -353,7 +403,7 @@ namespace Collections.Special
                 code = code * 23 + m_Size;
                 for (var i = 0; i < m_Size; i++)
                 {
-                    code = code * 23 + m_Keys[i];
+                    code = code * 23 + m_Keys[i].GetHashCode();
                     code = code * 23 + m_Values[i].GetHashCode();
                 }
                 return code;
@@ -405,13 +455,21 @@ namespace Collections.Special
                     keys[i] = binaryReader.ReadUInt16();
                     var type = binaryReader.ReadByte();
                     if (type == 0)
+                    {
                         containers[i] = ArrayContainer.One;
+                    }
                     else if (type == 1)
+                    {
                         containers[i] = ArrayContainer.Deserialize(binaryReader);
+                    }
                     else if (type == 0x7F)
+                    {
                         containers[i] = BitmapContainer.One;
+                    }
                     else if (type == 0x80)
+                    {
                         containers[i] = BitmapContainer.Deserialize(binaryReader);
+                    }
                 }
                 return new RoaringArray(size, keys, containers);
             }

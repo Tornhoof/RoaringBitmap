@@ -15,7 +15,7 @@ namespace Collections.Special
             m_HighLowContainer = input;
         }
 
-        public int Cardinality => m_HighLowContainer.Cardinality;
+        public long Cardinality => m_HighLowContainer.Cardinality;
 
         public IEnumerator<int> GetEnumerator()
         {
@@ -30,9 +30,13 @@ namespace Collections.Special
         public bool Equals(RoaringBitmap other)
         {
             if (ReferenceEquals(this, other))
+            {
                 return true;
+            }
             if (ReferenceEquals(null, other))
+            {
                 return false;
+            }
             return m_HighLowContainer.Equals(other.m_HighLowContainer);
         }
 
@@ -51,9 +55,13 @@ namespace Collections.Special
             {
                 keys.Add(group.Key);
                 if (group.Count() > Container.MaxSize)
+                {
                     containers.Add(BitmapContainer.Create(group.Select(Util.LowBits).ToArray()));
+                }
                 else
+                {
                     containers.Add(ArrayContainer.Create(group.Select(Util.LowBits).ToArray()));
+                }
                 size++;
             }
             return new RoaringBitmap(new RoaringArray(size, keys, containers));

@@ -20,52 +20,64 @@ namespace RoaringBitmap.Benchmark.MicroBenchmarks
         }
 
         [Benchmark]
-        public int Or()
+        public long Or()
         {
-            var total = 0;
+            var total = 0L;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
+            {
                 total += (m_Bitmaps[k] | m_Bitmaps[k + 1]).Cardinality;
+            }
             return total;
         }
 
         [Benchmark]
-        public int Xor()
+        public long Xor()
         {
-            var total = 0;
+            var total = 0L;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
+            {
                 total += (m_Bitmaps[k] ^ m_Bitmaps[k + 1]).Cardinality;
+            }
             return total;
         }
 
         [Benchmark]
-        public int And()
+        public long And()
         {
-            var total = 0;
+            var total = 0L;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
+            {
                 total += (m_Bitmaps[k] & m_Bitmaps[k + 1]).Cardinality;
+            }
             return total;
         }
 
         [Benchmark]
-        public int AndNot()
+        public long AndNot()
         {
-            var total = 0;
+            var total = 0L;
             for (var k = 0; k < m_Bitmaps.Length - 1; k++)
+            {
                 total += Collections.Special.RoaringBitmap.AndNot(m_Bitmaps[k], m_Bitmaps[k + 1]).Cardinality;
+            }
             return total;
         }
 
 
         [Benchmark]
-        public int Iterate()
+        public long Iterate()
         {
-            var total = 0;
+            var total = 0L;
             foreach (var roaringBitmap in m_Bitmaps)
+            {
                 foreach (var @int in roaringBitmap)
+                {
                     unchecked
                     {
                         total += @int;
                     }
+                }
+            }
             return total;
         }
     }

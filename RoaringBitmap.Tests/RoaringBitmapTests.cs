@@ -13,12 +13,18 @@ namespace RoaringBitmap.Tests
             var list = new List<int>();
             var baseValue = 0x10000;
             for (var i = 0; i < 50; i++)
+            {
                 list.Add(i * 62);
+            }
 
             for (var i = baseValue; i < baseValue + 100; i++)
+            {
                 list.Add(i);
+            }
             for (var i = 2 * baseValue; i < 3 * baseValue; i++)
+            {
                 list.Add(i);
+            }
             return list;
         }
 
@@ -27,12 +33,18 @@ namespace RoaringBitmap.Tests
             var list = new List<int>();
             var baseValue = 0x10000;
             for (var i = 1; i < 50; i++)
+            {
                 list.Add(i * 65);
+            }
 
             for (var i = baseValue + 100; i < baseValue + 200; i++)
+            {
                 list.Add(i);
+            }
             for (var i = 3 * baseValue; i < 4 * baseValue; i++)
+            {
                 list.Add(i);
+            }
             return list;
         }
 
@@ -43,13 +55,17 @@ namespace RoaringBitmap.Tests
             if (type == 0)
             {
                 for (var i = 0; i < size; i++)
+                {
                     list.Add(random.Next());
+                }
             }
             else
             {
                 var start = random.Next(0, int.MaxValue - size);
                 for (var i = start; i < start + size; i++)
+                {
                     list.Add(i);
+                }
             }
             return list;
         }
@@ -203,6 +219,22 @@ namespace RoaringBitmap.Tests
         }
 
         [Fact]
+        public void CardinalityOfEmptySet()
+        {
+            var full = Collections.Special.RoaringBitmap.Create();
+
+            Assert.Equal(0, full.Cardinality);
+        }
+
+        [Fact]
+        public void CardinalityOfFullSet()
+        {
+            var full = ~Collections.Special.RoaringBitmap.Create();
+
+            Assert.Equal(1L << 32, full.Cardinality);
+        }
+
+        [Fact]
         public void Equal()
         {
             var list = CreateMixedListOne();
@@ -302,6 +334,35 @@ namespace RoaringBitmap.Tests
                 ms.Position = 0;
                 var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
                 Assert.Equal(rb, rb2);
+            }
+        }
+
+
+        [Fact]
+        public void SerializeEmptySet()
+        {
+            var full = Collections.Special.RoaringBitmap.Create();
+
+            using (var ms = new MemoryStream())
+            {
+                Collections.Special.RoaringBitmap.Serialize(full, ms);
+                ms.Position = 0;
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
+                Assert.Equal(full, rb2);
+            }
+        }
+
+        [Fact]
+        public void SerializeFullSet()
+        {
+            var full = ~Collections.Special.RoaringBitmap.Create();
+
+            using (var ms = new MemoryStream())
+            {
+                Collections.Special.RoaringBitmap.Serialize(full, ms);
+                ms.Position = 0;
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
+                Assert.Equal(full, rb2);
             }
         }
 

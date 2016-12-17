@@ -26,6 +26,7 @@ namespace RoaringBitmap.Benchmark
         public IEnumerator<Collections.Special.RoaringBitmap> GetEnumerator()
         {
             foreach (var zipArchiveEntry in m_Archive.Entries)
+            {
                 using (var stream = zipArchiveEntry.Open())
                 {
                     using (var stringReader = new StreamReader(stream))
@@ -35,6 +36,7 @@ namespace RoaringBitmap.Benchmark
                         yield return Collections.Special.RoaringBitmap.Create(values);
                     }
                 }
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -50,7 +52,9 @@ namespace RoaringBitmap.Benchmark
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
+            {
                 m_Archive.Dispose();
+            }
         }
     }
 }
