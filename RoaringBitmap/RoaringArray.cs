@@ -474,5 +474,29 @@ namespace Collections.Special
                 return new RoaringArray(size, keys, containers);
             }
         }
+
+        public static RoaringArray Optimize(RoaringArray roaringArray)
+        {
+            var keys = new ushort[roaringArray.m_Size];
+            Array.Copy(roaringArray.m_Keys, keys, roaringArray.m_Size);
+            var containers = new Container[roaringArray.m_Size];
+            for (int i = 0; i < roaringArray.m_Size; i++)
+            {
+                var currentContainer = roaringArray.m_Values[i];
+                if (currentContainer.Equals(ArrayContainer.One))
+                {
+                    containers[i] = ArrayContainer.One;
+                }
+                else if (currentContainer.Equals(BitmapContainer.One))
+                {
+                    containers[i] = BitmapContainer.One;
+                }
+                else
+                {
+                    containers[i] = currentContainer;
+                }
+            }
+            return new RoaringArray(roaringArray.m_Size, keys, containers);
+        }
     }
 }

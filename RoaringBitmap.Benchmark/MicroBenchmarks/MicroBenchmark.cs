@@ -4,7 +4,6 @@ using BenchmarkDotNet.Attributes;
 
 namespace RoaringBitmap.Benchmark.MicroBenchmarks
 {
-    [Config(typeof(MemoryConfig))]
     public abstract class MicroBenchmark
     {
         private readonly Collections.Special.RoaringBitmap[] m_Bitmaps;

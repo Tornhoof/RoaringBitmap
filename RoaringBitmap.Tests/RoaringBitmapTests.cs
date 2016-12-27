@@ -314,6 +314,28 @@ namespace RoaringBitmap.Tests
         }
 
         [Fact]
+        public void OptimizeFullSetBitmapContainer()
+        {
+            var full = ~Collections.Special.RoaringBitmap.Create();
+            var fullOptimized = full.Optimize();
+            Assert.NotNull(fullOptimized);
+            Assert.False(ReferenceEquals(full, fullOptimized));
+            var empty = ~fullOptimized;
+            var emptyList = empty.ToList();
+            Assert.Empty(emptyList);
+        }
+
+        [Fact]
+        public void OptimizeFullSetArrayContainer()
+        {
+            var full = Collections.Special.RoaringBitmap.Create(Enumerable.Range(0,4096));
+            var fullOptimized = full.Optimize();
+            Assert.NotNull(fullOptimized);
+            Assert.False(ReferenceEquals(full, fullOptimized));
+            Assert.Equal(Enumerable.Range(0, 4096), fullOptimized.ToList());
+        }
+
+        [Fact]
         public void OrSame()
         {
             var list = CreateMixedListOne();

@@ -33,7 +33,8 @@ namespace RoaringBitmap.Benchmark
                     {
                         var split = stringReader.ReadLine().Split(',');
                         var values = split.Select(int.Parse).ToList();
-                        yield return Collections.Special.RoaringBitmap.Create(values);
+                        var bitmap = Collections.Special.RoaringBitmap.Create(values);
+                        yield return bitmap.Optimize();
                     }
                 }
             }

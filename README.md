@@ -14,7 +14,7 @@ Target Framework is .NET 4.6
 https://www.nuget.org/packages/RoaringBitmap/
 
 # TODO
-* Improve memory usage, especially NOT will put objects on the Large Object Heap
+* Support "official" RoaringBitmap File Format
 
 # How to use it?
 Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it.

@@ -45,6 +45,11 @@ namespace Collections.Special
             return Create(values.AsEnumerable());
         }
 
+        public RoaringBitmap Optimize()
+        {
+            return new RoaringBitmap(RoaringArray.Optimize(m_HighLowContainer));
+        }
+
         public static RoaringBitmap Create(IEnumerable<int> values)
         {
             var groupbyHb = values.Distinct().OrderBy(t => t).GroupBy(Util.HighBits).OrderBy(t => t.Key).ToList();
