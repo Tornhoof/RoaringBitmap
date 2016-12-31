@@ -66,6 +66,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <EmbeddedResource Include="bitmapwithoutruns.bin" />
+    <EmbeddedResource Include="bitmapwithruns.bin" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

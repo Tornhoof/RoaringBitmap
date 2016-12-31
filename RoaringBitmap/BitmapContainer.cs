@@ -33,7 +33,7 @@ namespace Collections.Special
             m_Cardinality = cardinality;
         }
 
-        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? Value16Bit - cardinality : cardinality)
+        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? MaxCapacity - cardinality : cardinality)
         {
             if (negated)
             {
@@ -58,6 +58,8 @@ namespace Collections.Special
         }
 
         protected internal override int Cardinality => m_Cardinality;
+
+        public override int ArraySizeInBytes => MaxCapacity / 8;
 
         public bool Equals(BitmapContainer other)
         {
@@ -262,7 +264,7 @@ namespace Collections.Special
         protected override bool EqualsInternal(Container other)
         {
             var bc = other as BitmapContainer;
-            return bc != null && Equals(bc);
+            return (bc != null) && Equals(bc);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -320,16 +322,14 @@ namespace Collections.Special
 
         public static void Serialize(BitmapContainer bc, BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(bc.m_Cardinality);
             for (var i = 0; i < 1024; i++)
             {
                 binaryWriter.Write(bc.m_Bitmap[i]);
             }
         }
 
-        public static BitmapContainer Deserialize(BinaryReader binaryReader)
+        public static BitmapContainer Deserialize(BinaryReader binaryReader, int cardinality)
         {
-            var cardinality = binaryReader.ReadInt32();
             var data = new ulong[1024];
             for (var i = 0; i < 1024; i++)
             {

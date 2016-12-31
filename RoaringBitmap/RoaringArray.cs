@@ -2,16 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace Collections.Special
 {
     internal class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
     {
+        private const int SerialCookieNoRuncontainer = 12346;
+        private const int SerialCookie = 12347;
+        private const int NoOffsetThreshold = 4;
         private readonly ushort[] m_Keys;
         private readonly int m_Size;
         private readonly Container[] m_Values;
+
 
         // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
@@ -35,7 +38,7 @@ namespace Collections.Special
             m_Size = size;
             m_Keys = keys;
             m_Values = containers;
-            for (int i = 0; i < containers.Length; i++)
+            for (var i = 0; i < containers.Length; i++)
             {
                 Cardinality += containers[i].Cardinality;
             }
@@ -303,11 +306,11 @@ namespace Collections.Special
 
         public static RoaringArray operator ~(RoaringArray x)
         {
-            var keys = new List<ushort>(Container.Value16Bit);
+            var keys = new List<ushort>(Container.MaxCapacity);
             var size = 0;
-            var containers = new List<Container>(Container.Value16Bit);
+            var containers = new List<Container>(Container.MaxCapacity);
             var oldIndex = 0;
-            for (int i = 0; i < Container.Value16Bit; i++)
+            for (var i = 0; i < Container.MaxCapacity; i++)
             {
                 var ushortI = (ushort) i;
                 var index = Array.BinarySearch(x.m_Keys, oldIndex, x.m_Size - oldIndex, ushortI);
@@ -412,63 +415,192 @@ namespace Collections.Special
 
         public static void Serialize(RoaringArray roaringArray, Stream stream)
         {
+            var hasRun = HasRunContainer(roaringArray);
             using (var binaryWriter = new BinaryWriter(stream, Encoding.UTF8, true))
             {
-                binaryWriter.Write(roaringArray.m_Size);
-                for (var i = 0; i < roaringArray.m_Keys.Length; i++)
+                var size = roaringArray.m_Size;
+                var keys = roaringArray.m_Keys;
+                var values = roaringArray.m_Values;
+                var startOffset = 0;
+                if (hasRun)
                 {
-                    binaryWriter.Write(roaringArray.m_Keys[i]);
-                    var c = roaringArray.m_Values[i];
-
-                    if (Equals(c, ArrayContainer.One))
+                    binaryWriter.Write(SerialCookie | ((size - 1) << 16));
+                    var bitmapOfRunContainers = new byte[(size + 7) / 8];
+                    for (var i = 0; i < size; ++i)
                     {
-                        binaryWriter.Write((byte) 0);
+                        if (values[i].Equals(ArrayContainer.One) || values[i].Equals(BitmapContainer.One))
+                        {
+                            bitmapOfRunContainers[i / 8] |= (byte) (1 << (i % 8));
+                        }
                     }
-                    else if (c is ArrayContainer)
+                    binaryWriter.Write(bitmapOfRunContainers);
+                }
+                else // no run containers
+                {
+                    binaryWriter.Write(SerialCookieNoRuncontainer);
+                    binaryWriter.Write(size);
+                    startOffset = 4 + 4 + 4 * size + 4 * size;
+                }
+                for (var k = 0; k < size; ++k)
+                {
+                    binaryWriter.Write(keys[k]);
+                    binaryWriter.Write((ushort) (values[k].Cardinality - 1));
+                }
+                if (!hasRun || (size >= NoOffsetThreshold))
+                {
+                    for (var k = 0; k < size; k++)
                     {
-                        binaryWriter.Write((byte) 1);
-                        ArrayContainer.Serialize((ArrayContainer) c, binaryWriter);
+                        binaryWriter.Write(startOffset);
+                        startOffset += values[k].ArraySizeInBytes;
                     }
-                    else if (Equals(c, BitmapContainer.One))
+                }
+                for (var k = 0; k < size; ++k)
+                {
+                    var container = values[k];
+                    ArrayContainer ac;
+                    BitmapContainer bc;
+                    if ((ac = container as ArrayContainer) != null)
                     {
-                        binaryWriter.Write((byte) 0x7F);
+                        if (ac.Equals(ArrayContainer.One))
+                        {
+                            binaryWriter.Write((ushort) 1);
+                            binaryWriter.Write((ushort) 0);
+                            binaryWriter.Write((ushort) (Container.MaxSize - 1));
+                        }
+                        else
+                        {
+                            ArrayContainer.Serialize(ac, binaryWriter);
+                        }
                     }
-                    else if (c is BitmapContainer)
+                    else if ((bc = container as BitmapContainer) != null)
                     {
-                        binaryWriter.Write((byte) 0x80);
-                        BitmapContainer.Serialize((BitmapContainer) c, binaryWriter);
+                        if (bc.Equals(BitmapContainer.One))
+                        {
+                            binaryWriter.Write((ushort) 1);
+                            binaryWriter.Write((ushort) 0);
+                            binaryWriter.Write((ushort) (Container.MaxCapacity - 1));
+                        }
+                        else
+                        {
+                            BitmapContainer.Serialize(bc, binaryWriter);
+                        }
                     }
                 }
                 binaryWriter.Flush();
             }
         }
 
+        private static bool HasRunContainer(RoaringArray roaringArray)
+        {
+            for (var i = 0; i < roaringArray.m_Size; i++)
+            {
+                if (roaringArray.m_Values[i].Equals(ArrayContainer.One) || roaringArray.m_Values[i].Equals(BitmapContainer.One))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public static RoaringArray Deserialize(Stream stream)
         {
             using (var binaryReader = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                var size = binaryReader.ReadInt32();
+                var cookie = binaryReader.ReadUInt32();
+                var lbcookie = cookie & 0xFFFF;
+                if ((lbcookie != SerialCookie) && (cookie != SerialCookieNoRuncontainer))
+                {
+                    throw new InvalidDataException("No RoaringBitmap file.");
+                }
+                var hasRun = lbcookie == SerialCookie;
+                var size = (int) (hasRun ? (cookie >> 16) + 1 : binaryReader.ReadUInt32());
                 var keys = new ushort[size];
                 var containers = new Container[size];
+                var cardinalities = new int[size];
+                var isBitmap = new bool[size];
+
+
+                byte[] bitmapOfRunContainers = null;
+                if (hasRun)
+                {
+                    bitmapOfRunContainers = binaryReader.ReadBytes((size + 7) / 8);
+                }
+                for (var k = 0; k < size; ++k)
+                {
+                    keys[k] = binaryReader.ReadUInt16();
+                    cardinalities[k] = 1 + (0xFFFF & binaryReader.ReadUInt16());
+                    isBitmap[k] = cardinalities[k] > Container.MaxSize;
+                    if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    {
+                        isBitmap[k] = false;
+                    }
+                }
+                if (!hasRun || (size >= NoOffsetThreshold))
+                {
+                    // skipping the offsets
+                    binaryReader.ReadBytes(size * 4);
+                }
+                for (var k = 0; k < size; ++k)
+                {
+                    if (isBitmap[k])
+                    {
+                        containers[k] = BitmapContainer.Deserialize(binaryReader, cardinalities[k]);
+                    }
+                    else if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    {
+                        var nbrruns = binaryReader.ReadUInt16();
+                        var values = new List<ushort>(nbrruns * 2); // probably more
+                        var count = 0;
+                        var specialCase = false;
+                        for (var j = 0; j < nbrruns; ++j)
+                        {
+                            var value = binaryReader.ReadUInt16();
+                            var length = binaryReader.ReadUInt16();
+
+                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxCapacity - 1)) // special one scenario
+                            {
+                                containers[k] = BitmapContainer.One;
+                                specialCase = true;
+                                break;
+                            }
+                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxSize - 1)) // special one scenario
+                            {
+                                containers[k] = ArrayContainer.One;
+                                specialCase = true;
+                                break;
+                            }
+                            for (int i = value; i < value + length + 1; i++)
+                            {
+                                values.Add((ushort) i);
+                            }
+                            count += length;
+                        }
+                        if (!specialCase)
+                        {
+                            if (count > Container.MaxSize)
+                            {
+                                containers[k] = BitmapContainer.Create(values.ToArray());
+                            }
+                            else
+                            {
+                                containers[k] = ArrayContainer.Create(values.ToArray());
+                            }
+                        }
+                    }
+                    else
+                    {
+                        containers[k] = ArrayContainer.Deserialize(binaryReader, cardinalities[k]);
+                    }
+                }
                 for (var i = 0; i < size; i++)
                 {
-                    keys[i] = binaryReader.ReadUInt16();
-                    var type = binaryReader.ReadByte();
-                    if (type == 0)
+                    if (containers[i].Equals(ArrayContainer.One))
                     {
                         containers[i] = ArrayContainer.One;
                     }
-                    else if (type == 1)
-                    {
-                        containers[i] = ArrayContainer.Deserialize(binaryReader);
-                    }
-                    else if (type == 0x7F)
+                    else if (containers[i].Equals(BitmapContainer.One))
                     {
                         containers[i] = BitmapContainer.One;
-                    }
-                    else if (type == 0x80)
-                    {
-                        containers[i] = BitmapContainer.Deserialize(binaryReader);
                     }
                 }
                 return new RoaringArray(size, keys, containers);
@@ -480,7 +612,7 @@ namespace Collections.Special
             var keys = new ushort[roaringArray.m_Size];
             Array.Copy(roaringArray.m_Keys, keys, roaringArray.m_Size);
             var containers = new Container[roaringArray.m_Size];
-            for (int i = 0; i < roaringArray.m_Size; i++)
+            for (var i = 0; i < roaringArray.m_Size; i++)
             {
                 var currentContainer = roaringArray.m_Values[i];
                 if (currentContainer.Equals(ArrayContainer.One))

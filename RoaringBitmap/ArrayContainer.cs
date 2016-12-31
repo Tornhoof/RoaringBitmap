@@ -28,6 +28,8 @@ namespace Collections.Special
 
         protected internal override int Cardinality => m_Cardinality;
 
+        public override int ArraySizeInBytes => m_Cardinality * sizeof(ushort);
+
 
         public bool Equals(ArrayContainer other)
         {
@@ -73,7 +75,7 @@ namespace Collections.Special
         protected override bool EqualsInternal(Container other)
         {
             var ac = other as ArrayContainer;
-            return ac != null && Equals(ac);
+            return (ac != null) && Equals(ac);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -83,6 +85,7 @@ namespace Collections.Special
                 yield return m_Content[i];
             }
         }
+
 
         public static Container operator &(ArrayContainer x, ArrayContainer y)
         {
@@ -254,16 +257,14 @@ namespace Collections.Special
 
         public static void Serialize(ArrayContainer ac, BinaryWriter binaryWriter)
         {
-            binaryWriter.Write(ac.m_Cardinality);
             for (var i = 0; i < ac.m_Cardinality; i++)
             {
                 binaryWriter.Write(ac.m_Content[i]);
             }
         }
 
-        public static ArrayContainer Deserialize(BinaryReader binaryReader)
+        public static ArrayContainer Deserialize(BinaryReader binaryReader, int cardinality)
         {
-            var cardinality = binaryReader.ReadInt32();
             var data = new ushort[cardinality];
             for (var i = 0; i < cardinality; i++)
             {

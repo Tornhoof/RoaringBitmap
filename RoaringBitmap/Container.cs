@@ -6,9 +6,24 @@ namespace Collections.Special
     internal abstract class Container : IEquatable<Container>
     {
         public const int MaxSize = 4096; // everything <= is an ArrayContainer
-        public const int Value16Bit = 1 << 16;
+        public const int MaxCapacity = 1 << 16;
 
         protected internal abstract int Cardinality { get; }
+
+        public abstract int ArraySizeInBytes { get; }
+
+        public bool Equals(Container other)
+        {
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+            return EqualsInternal(other);
+        }
 
         protected abstract bool EqualsInternal(Container other);
 
@@ -94,19 +109,6 @@ namespace Collections.Special
                 return BitmapContainer.AndNot((BitmapContainer) x, yArrayContainer);
             }
             return BitmapContainer.AndNot((BitmapContainer) x, (BitmapContainer) y);
-        }
-
-        public bool Equals(Container other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            return EqualsInternal(other);
         }
     }
 }

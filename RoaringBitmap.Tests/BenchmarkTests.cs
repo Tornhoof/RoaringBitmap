@@ -110,7 +110,7 @@ namespace RoaringBitmap.Tests
         {
             var bitmaps = m_Fixture.GetBitmaps(name);
             Assert.NotNull(bitmaps);
-            int total = 0;
+            var total = 0;
             foreach (var roaringBitmap in bitmaps)
             {
                 foreach (var @int in roaringBitmap)

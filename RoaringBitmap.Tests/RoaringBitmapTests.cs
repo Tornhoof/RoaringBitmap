@@ -8,6 +8,11 @@ namespace RoaringBitmap.Tests
 {
     public class RoaringBitmapTests
     {
+        private static Stream GetResourceStream(string name)
+        {
+            return typeof(RoaringBitmapTests).Assembly.GetManifestResourceStream(typeof(RoaringBitmapTests), name);
+        }
+
         private static List<int> CreateMixedListOne()
         {
             var list = new List<int>();
@@ -68,6 +73,32 @@ namespace RoaringBitmap.Tests
                 }
             }
             return list;
+        }
+
+        [Theory]
+        [InlineData("bitmapwithoutruns.bin")]
+        [InlineData("bitmapwithruns.bin")]
+        public void DeSerializeTestContainers(string name)
+        {
+            using (var reference = GetResourceStream(name))
+            {
+                var items = new List<int>();
+                for (var k = 0; k < 100000; k += 1000)
+                {
+                    items.Add(k);
+                }
+                for (var k = 100000; k < 200000; ++k)
+                {
+                    items.Add(3 * k);
+                }
+                for (var k = 700000; k < 800000; ++k)
+                {
+                    items.Add(k);
+                }
+                var rb = Collections.Special.RoaringBitmap.Create(items);
+                var deserialized = Collections.Special.RoaringBitmap.Deserialize(reference);
+                Assert.Equal(rb, deserialized);
+            }
         }
 
         [Fact]
@@ -284,6 +315,28 @@ namespace RoaringBitmap.Tests
         }
 
         [Fact]
+        public void OptimizeFullSetArrayContainer()
+        {
+            var full = Collections.Special.RoaringBitmap.Create(Enumerable.Range(0, 4096));
+            var fullOptimized = full.Optimize();
+            Assert.NotNull(fullOptimized);
+            Assert.False(ReferenceEquals(full, fullOptimized));
+            Assert.Equal(Enumerable.Range(0, 4096), fullOptimized.ToList());
+        }
+
+        [Fact]
+        public void OptimizeFullSetBitmapContainer()
+        {
+            var full = ~Collections.Special.RoaringBitmap.Create();
+            var fullOptimized = full.Optimize();
+            Assert.NotNull(fullOptimized);
+            Assert.False(ReferenceEquals(full, fullOptimized));
+            var empty = ~fullOptimized;
+            var emptyList = empty.ToList();
+            Assert.Empty(emptyList);
+        }
+
+        [Fact]
         public void OrDisjunct()
         {
             var firstList = CreateMixedListOne();
@@ -314,28 +367,6 @@ namespace RoaringBitmap.Tests
         }
 
         [Fact]
-        public void OptimizeFullSetBitmapContainer()
-        {
-            var full = ~Collections.Special.RoaringBitmap.Create();
-            var fullOptimized = full.Optimize();
-            Assert.NotNull(fullOptimized);
-            Assert.False(ReferenceEquals(full, fullOptimized));
-            var empty = ~fullOptimized;
-            var emptyList = empty.ToList();
-            Assert.Empty(emptyList);
-        }
-
-        [Fact]
-        public void OptimizeFullSetArrayContainer()
-        {
-            var full = Collections.Special.RoaringBitmap.Create(Enumerable.Range(0,4096));
-            var fullOptimized = full.Optimize();
-            Assert.NotNull(fullOptimized);
-            Assert.False(ReferenceEquals(full, fullOptimized));
-            Assert.Equal(Enumerable.Range(0, 4096), fullOptimized.ToList());
-        }
-
-        [Fact]
         public void OrSame()
         {
             var list = CreateMixedListOne();
@@ -345,6 +376,7 @@ namespace RoaringBitmap.Tests
             var rbList = rb2.ToList();
             Assert.Equal(list, rbList);
         }
+
 
         [Fact]
         public void SerializeDeserialize()
@@ -375,6 +407,34 @@ namespace RoaringBitmap.Tests
         }
 
         [Fact]
+        public void SerializeFullArrayContainer()
+        {
+            var full = Collections.Special.RoaringBitmap.Create(Enumerable.Range(0, 4096));
+
+            using (var ms = new MemoryStream())
+            {
+                Collections.Special.RoaringBitmap.Serialize(full, ms);
+                ms.Position = 0;
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
+                Assert.Equal(full, rb2);
+            }
+        }
+
+        [Fact]
+        public void SerializeFullBitContainer()
+        {
+            var full = Collections.Special.RoaringBitmap.Create(Enumerable.Range(0, 1 << 16));
+
+            using (var ms = new MemoryStream())
+            {
+                Collections.Special.RoaringBitmap.Serialize(full, ms);
+                ms.Position = 0;
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
+                Assert.Equal(full, rb2);
+            }
+        }
+
+        [Fact]
         public void SerializeFullSet()
         {
             var full = ~Collections.Special.RoaringBitmap.Create();
@@ -385,6 +445,32 @@ namespace RoaringBitmap.Tests
                 ms.Position = 0;
                 var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
                 Assert.Equal(full, rb2);
+            }
+        }
+
+        [Fact] // the testdata container https://github.com/RoaringBitmap/RoaringFormatSpec/tree/master/testdata
+        public void SerializeTestContainer()
+        {
+            var items = new List<int>();
+            for (var k = 0; k < 100000; k += 1000)
+            {
+                items.Add(k);
+            }
+            for (var k = 100000; k < 200000; ++k)
+            {
+                items.Add(3 * k);
+            }
+            for (var k = 700000; k < 800000; ++k)
+            {
+                items.Add(k);
+            }
+            var rb = Collections.Special.RoaringBitmap.Create(items);
+            using (var ms = new MemoryStream())
+            {
+                Collections.Special.RoaringBitmap.Serialize(rb, ms);
+                ms.Position = 0;
+                var rb2 = Collections.Special.RoaringBitmap.Deserialize(ms);
+                Assert.Equal(rb, rb2);
             }
         }
 
