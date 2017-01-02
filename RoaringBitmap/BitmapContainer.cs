@@ -10,11 +10,12 @@ namespace Collections.Special
         public static readonly BitmapContainer One;
         private readonly ulong[] m_Bitmap;
         private readonly int m_Cardinality;
+        private const int BitmapLength = 1024;
 
         static BitmapContainer()
         {
-            var data = new ulong[1024];
-            for (var i = 0; i < data.Length; i++)
+            var data = new ulong[BitmapLength];
+            for (var i = 0; i < BitmapLength; i++)
             {
                 data[i] = ulong.MaxValue;
             }
@@ -23,7 +24,7 @@ namespace Collections.Special
 
         private BitmapContainer(int cardinality)
         {
-            m_Bitmap = new ulong[1024];
+            m_Bitmap = new ulong[BitmapLength];
             m_Cardinality = cardinality;
         }
 
@@ -37,7 +38,7 @@ namespace Collections.Special
         {
             if (negated)
             {
-                for (var i = 0; i < m_Bitmap.Length; i++)
+                for (var i = 0; i < BitmapLength; i++)
                 {
                     m_Bitmap[i] = ulong.MaxValue;
                 }
@@ -75,11 +76,7 @@ namespace Collections.Special
             {
                 return false;
             }
-            if (m_Bitmap.Length != other.m_Bitmap.Length)
-            {
-                return false;
-            }
-            for (var i = 0; i < m_Bitmap.Length; i++)
+            for (var i = 0; i < BitmapLength; i++)
             {
                 if (m_Bitmap[i] != other.m_Bitmap[i])
                 {
@@ -108,7 +105,7 @@ namespace Collections.Special
 
         internal static BitmapContainer CreateXor(ushort[] first, int firstCardinality, ushort[] second, int secondCardinality)
         {
-            var data = new ulong[1024];
+            var data = new ulong[BitmapLength];
             for (var i = 0; i < firstCardinality; i++)
             {
                 var v = first[i];
@@ -137,8 +134,8 @@ namespace Collections.Special
 
         private static ulong[] Clone(ulong[] data)
         {
-            var result = new ulong[data.Length];
-            Buffer.BlockCopy(data, 0, result, 0, data.Length * sizeof(ulong));
+            var result = new ulong[BitmapLength];
+            Buffer.BlockCopy(data, 0, result, 0, BitmapLength * sizeof(ulong));
             return result;
         }
 
@@ -201,7 +198,7 @@ namespace Collections.Special
 
         private static int XorInternal(ulong[] first, ulong[] second)
         {
-            for (var k = 0; k < first.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 first[k] = first[k] ^ second[k];
             }
@@ -221,7 +218,7 @@ namespace Collections.Special
 
         private static int NotInternal(ulong[] data)
         {
-            for (var k = 0; k < data.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 data[k] = ~data[k];
             }
@@ -231,7 +228,7 @@ namespace Collections.Special
 
         private static int OrInternal(ulong[] first, ulong[] second)
         {
-            for (var k = 0; k < first.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 first[k] = first[k] | second[k];
             }
@@ -241,7 +238,7 @@ namespace Collections.Special
 
         private static int AndInternal(ulong[] first, ulong[] second)
         {
-            for (var k = 0; k < first.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 first[k] = first[k] & second[k];
             }
@@ -269,7 +266,7 @@ namespace Collections.Special
 
         public override IEnumerator<ushort> GetEnumerator()
         {
-            for (var k = 0; k < m_Bitmap.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 var bitset = m_Bitmap[k];
                 var shiftedK = k << 6;
@@ -286,7 +283,7 @@ namespace Collections.Special
         internal int FillArray(ushort[] data)
         {
             var pos = 0;
-            for (var k = 0; k < m_Bitmap.Length; k++)
+            for (var k = 0; k < BitmapLength; k++)
             {
                 var bitset = m_Bitmap[k];
                 var shiftedK = k << 6;
@@ -312,7 +309,7 @@ namespace Collections.Special
             {
                 var code = 17;
                 code = code * 23 + m_Cardinality;
-                for (var i = 0; i < 1024; i++)
+                for (var i = 0; i < BitmapLength; i++)
                 {
                     code = code * 23 + m_Bitmap[i].GetHashCode();
                 }
@@ -322,7 +319,7 @@ namespace Collections.Special
 
         public static void Serialize(BitmapContainer bc, BinaryWriter binaryWriter)
         {
-            for (var i = 0; i < 1024; i++)
+            for (var i = 0; i < BitmapLength; i++)
             {
                 binaryWriter.Write(bc.m_Bitmap[i]);
             }
@@ -330,8 +327,8 @@ namespace Collections.Special
 
         public static BitmapContainer Deserialize(BinaryReader binaryReader, int cardinality)
         {
-            var data = new ulong[1024];
-            for (var i = 0; i < 1024; i++)
+            var data = new ulong[BitmapLength];
+            for (var i = 0; i < BitmapLength; i++)
             {
                 data[i] = binaryReader.ReadUInt64();
             }

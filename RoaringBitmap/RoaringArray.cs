@@ -79,24 +79,9 @@ namespace Collections.Special
             {
                 return false;
             }
-            if (m_Keys.Length != other.m_Keys.Length)
+            for (var i = 0; i < m_Size; i++)
             {
-                return false;
-            }
-            if (m_Values.Length != other.m_Values.Length)
-            {
-                return false;
-            }
-            for (var i = 0; i < m_Keys.Length; i++)
-            {
-                if (m_Keys[i] != other.m_Keys[i])
-                {
-                    return false;
-                }
-            }
-            for (var i = 0; i < m_Values.Length; i++)
-            {
-                if (!m_Values[i].Equals(other.m_Values[i]))
+                if (m_Keys[i] != other.m_Keys[i] || !m_Values[i].Equals(other.m_Values[i]))
                 {
                     return false;
                 }

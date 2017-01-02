@@ -45,11 +45,7 @@ namespace Collections.Special
             {
                 return false;
             }
-            if (m_Content.Length != other.m_Content.Length)
-            {
-                return false;
-            }
-            for (var i = 0; i < m_Content.Length; i++)
+            for (var i = 0; i < m_Cardinality; i++)
             {
                 if (m_Content[i] != other.m_Content[i])
                 {
