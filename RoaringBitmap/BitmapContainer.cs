@@ -7,10 +7,10 @@ namespace Collections.Special
 {
     internal class BitmapContainer : Container, IEquatable<BitmapContainer>
     {
+        private const int BitmapLength = 1024;
         public static readonly BitmapContainer One;
         private readonly ulong[] m_Bitmap;
         private readonly int m_Cardinality;
-        private const int BitmapLength = 1024;
 
         static BitmapContainer()
         {

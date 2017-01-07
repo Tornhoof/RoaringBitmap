@@ -81,7 +81,7 @@ namespace Collections.Special
             }
             for (var i = 0; i < m_Size; i++)
             {
-                if (m_Keys[i] != other.m_Keys[i] || !m_Values[i].Equals(other.m_Values[i]))
+                if ((m_Keys[i] != other.m_Keys[i]) || !m_Values[i].Equals(other.m_Values[i]))
                 {
                     return false;
                 }

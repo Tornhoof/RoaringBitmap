@@ -40,16 +40,30 @@ namespace Collections.Special
             return m_HighLowContainer.Equals(other.m_HighLowContainer);
         }
 
+        /// <summary>
+        ///     Creates a new immutable RoaringBitmap from an existing list of integers
+        /// </summary>
+        /// <param name="values">List of integers</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap Create(params int[] values)
         {
             return Create(values.AsEnumerable());
         }
 
+        /// <summary>
+        ///     Optimizes a RoaringBitmap to prepare e.g. for Serialization/Deserialization
+        /// </summary>
+        /// <returns>RoaringBitmap</returns>
         public RoaringBitmap Optimize()
         {
             return new RoaringBitmap(RoaringArray.Optimize(m_HighLowContainer));
         }
 
+        /// <summary>
+        ///     Creates a new immutable RoaringBitmap from an existing list of integers
+        /// </summary>
+        /// <param name="values">List of integers</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap Create(IEnumerable<int> values)
         {
             var groupbyHb = values.Distinct().OrderBy(t => t).GroupBy(Util.HighBits).OrderBy(t => t.Key).ToList();
@@ -72,27 +86,55 @@ namespace Collections.Special
             return new RoaringBitmap(new RoaringArray(size, keys, containers));
         }
 
+        /// <summary>
+        ///     Bitwise Or operation of two RoaringBitmaps
+        /// </summary>
+        /// <param name="x">RoaringBitmap</param>
+        /// <param name="y">RoaringBitmap</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap operator |(RoaringBitmap x, RoaringBitmap y)
         {
             return new RoaringBitmap(x.m_HighLowContainer | y.m_HighLowContainer);
         }
 
+        /// <summary>
+        ///     Bitwise And operation of two RoaringBitmaps
+        /// </summary>
+        /// <param name="x">RoaringBitmap</param>
+        /// <param name="y">RoaringBitmap</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap operator &(RoaringBitmap x, RoaringBitmap y)
         {
             return new RoaringBitmap(x.m_HighLowContainer & y.m_HighLowContainer);
         }
 
+        /// <summary>
+        ///     Bitwise Not operation of a RoaringBitmap
+        /// </summary>
+        /// <param name="x">RoaringBitmap</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap operator ~(RoaringBitmap x)
         {
             return new RoaringBitmap(~x.m_HighLowContainer);
         }
 
-
+        /// <summary>
+        ///     Bitwise Xor operation of two RoaringBitmaps
+        /// </summary>
+        /// <param name="x">RoaringBitmap</param>
+        /// <param name="y">RoaringBitmap</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap operator ^(RoaringBitmap x, RoaringBitmap y)
         {
             return new RoaringBitmap(x.m_HighLowContainer ^ y.m_HighLowContainer);
         }
 
+        /// <summary>
+        ///     Bitwise AndNot operation of two RoaringBitmaps
+        /// </summary>
+        /// <param name="x">RoaringBitmap</param>
+        /// <param name="y">RoaringBitmap</param>
+        /// <returns>RoaringBitmap</returns>
         public static RoaringBitmap AndNot(RoaringBitmap x, RoaringBitmap y)
         {
             return new RoaringBitmap(RoaringArray.AndNot(x.m_HighLowContainer, y.m_HighLowContainer));
@@ -109,11 +151,20 @@ namespace Collections.Special
             return (13 ^ m_HighLowContainer.GetHashCode()) << 3;
         }
 
+        /// <summary>
+        ///     Serializes a RoaringBitmap into a stream using the 'official' RoaringBitmap file format
+        /// </summary>
+        /// <param name="roaringBitmap">RoaringBitmap</param>
+        /// <param name="stream">Stream</param>
         public static void Serialize(RoaringBitmap roaringBitmap, Stream stream)
         {
             RoaringArray.Serialize(roaringBitmap.m_HighLowContainer, stream);
         }
 
+        /// <summary>
+        ///     Deserializes a RoaringBitmap from astream using the 'official' RoaringBitmap file format
+        /// </summary>
+        /// <param name="stream">Stream</param>
         public static RoaringBitmap Deserialize(Stream stream)
         {
             var ra = RoaringArray.Deserialize(stream);
