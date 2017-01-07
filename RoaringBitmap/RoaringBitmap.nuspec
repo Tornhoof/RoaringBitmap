@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>RoaringBitmap for .NET</description>
     <releaseNotes>Replaced Serialization code with official RoaringBitmap file format</releaseNotes>
-    <copyright>Copyright RoaringBitmap Contributors 2016</copyright>
+    <copyright>Copyright RoaringBitmap Contributors 2017</copyright>
     <tags>RoaringBitmap</tags>
     <dependencies>
       <dependency id="System.Collections" version="4.0.11"/>

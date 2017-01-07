@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("RoaringBitmap Contributors")]
 [assembly: AssemblyProduct("Roaring Bitmap")]
-[assembly: AssemblyCopyright("Copyright © Roaring Bitmap Contributors 2016")]
+[assembly: AssemblyCopyright("Copyright © Roaring Bitmap Contributors 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
