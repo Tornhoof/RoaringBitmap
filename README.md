@@ -14,7 +14,7 @@ Target Framework is .NET 4.6
 https://www.nuget.org/packages/RoaringBitmap/
 
 # TODO
-* Support "official" RoaringBitmap File Format
+* Add RunContainer support
 
 # How to use it?
 Compile the RoaringBitmap.sln and use 'RoaringBitmap.Create' to create your bitmap, then use bitwise operations on it.
@@ -25,31 +25,57 @@ var rb3 = rb | rb2;
 ```
 
 # Performance
-As this is a fairly direct port of the Java library the performance is comparable, on average around 10-20% slower, probably because C# has no popcnt intrinsic and due to the Immutable datastructure overhead.
-It also depends heavily on the system used, on a Intel XEON W3550 the .NET code was actually a tad faster.
-The iterator is several times slower than its Java pendant, I do not yet know why.
-The RoaringBitmap.Benchmark project contains microbenchmarks for the real-roaring-data set. This set is also used by the Unit Tests.
+As this is a fairly direct port of the immutable part of the Java Version of RoaringBitmap we can directly compare the Java Benchmark with this version, both benchmarks are equivalent and are also used for the Unit Testing to make sure they are actually doing the same.
+The CensusIncome dataset shows slightly faster performance numbers than the Java version.
+The Census1881 dataset is, except for AND, quite a bit faster than the Java version.
 
+``` ini
 
-```ini
-
-Host Process Environment Information:
-BenchmarkDotNet.Core=v0.9.9.0
-OS=Microsoft Windows NT 6.2.9200.0
+BenchmarkDotNet=v0.10.1, OS=Microsoft Windows NT 6.2.9200.0
 Processor=Intel(R) Core(TM) i7-4790K CPU 4.00GHz, ProcessorCount=8
-Frequency=3906250 ticks, Resolution=256.0000 ns, Timer=TSC
-CLR=MS.NET 4.0.30319.42000, Arch=64-bit RELEASE [RyuJIT]
-GC=Concurrent Workstation
-JitModules=clrjit-v4.6.1586.0
-
-Type=MicroBenchmarkCensusIncome  Mode=Throughput  
-
+Frequency=3906246 Hz, Resolution=256.0003 ns, Timer=TSC
+  [Host]     : Clr 4.0.30319.42000, 64bit RyuJIT-v4.6.1586.0
+  DefaultJob : Clr 4.0.30319.42000, 64bit RyuJIT-v4.6.1586.0
+  
+Type=MicroBenchmarkCensusIncome  Mode=Throughput
 ```
-  Method |     Median |    StdDev | Gen 0 | Gen 1 | Gen 2 | Bytes Allocated/Op |
--------- |----------- |---------- |------ |------ |------ |------------------- |
-      Or |  2.2656 ms | 0.0079 ms | 94.15 |  1.68 |  3.30 |       2.708.059,64 |
-     Xor |  2.4074 ms | 0.0085 ms | 84.24 |  1.79 |  3.50 |       2.457.820,69 |
-     And |  2.2318 ms | 0.0033 ms | 26.30 |  1.72 |  3.36 |         840.223,48 |
-  AndNot |  2.3633 ms | 0.0036 ms | 56.54 |  1.91 |  3.74 |       1.705.377,83 |
- Iterate | 88.0278 ms | 0.0888 ms | 33.00 | 49.00 | 96.00 |       6.331.163,29 |
+  Method |       Mean |    StdDev |    Gen 0 | Allocated |
+-------- |----------- |---------- |--------- |---------- |
+      Or |  2.2688 ms | 0.0042 ms | 846.8750 |   3.89 MB |
+     Xor |  2.3919 ms | 0.0073 ms | 872.9167 |   3.96 MB |
+     And |  2.2721 ms | 0.0031 ms | 233.3333 |   1.32 MB |
+  AndNot |  2.3636 ms | 0.0040 ms | 517.1875 |   2.49 MB |
+ Iterate | 89.4243 ms | 0.0203 ms |        - |  43.52 kB |
+ 
+ ``` ini
 
+BenchmarkDotNet=v0.10.1, OS=Microsoft Windows NT 6.2.9200.0
+Processor=Intel(R) Core(TM) i7-4790K CPU 4.00GHz, ProcessorCount=8
+Frequency=3906246 Hz, Resolution=256.0003 ns, Timer=TSC
+  [Host]     : Clr 4.0.30319.42000, 64bit RyuJIT-v4.6.1586.0
+  DefaultJob : Clr 4.0.30319.42000, 64bit RyuJIT-v4.6.1586.0
+
+Type=MicroBenchmarkCensus1881  Mode=Throughput  
+```
+  Method |           Mean |    StdDev |   Gen 0 |   Gen 1 | Allocated |
+-------- |--------------- |---------- |-------- |-------- |---------- |
+      Or |    234.7337 us | 0.1643 us | 82.4219 |       - | 392.01 kB |
+     Xor |    194.7747 us | 3.3360 us | 88.0859 |       - | 392.01 kB |
+     And |     65.8376 us | 0.3064 us |  5.7617 |       - |  35.42 kB |
+  AndNot |    156.3676 us | 0.0581 us | 73.4375 | 10.4167 | 330.47 kB |
+ Iterate | 10,166.3848 us | 7.7011 us |       - |       - |  68.35 kB |
+
+
+The Java output from the recent 0.6.32-SNAPSHOT version looks like this:
+
+
+ Method | Dataset       | Score    /  Error  | Units |
+------- | ------------- | ------------------ | ----- |
+ And    | census-income | 2251,305 ±  34,711 | us/op |
+ And    | census1881    |   53,618 ±   0,603 | us/op |
+ AndNot | census-income | 2829,971 ±   5,168 | us/op |
+ AndNot | census1881    |  474,517 ±   6,497 | us/op |
+ Or     | census-income | 2916,778 ±   3,628 | us/op |
+ Or     | census1881    |  748,054 ±  15,839 | us/op |
+ Xor    | census-income | 2845,861 ±  18,825 | us/op |
+ Xor    | census1881    |  811,914 ±   1,656 | us/op |
