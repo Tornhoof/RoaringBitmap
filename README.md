@@ -67,7 +67,17 @@ Type=MicroBenchmarkCensus1881  Mode=Throughput
 
 
 The Java output from the recent 0.6.32-SNAPSHOT version looks like this:
-
+``` ini
+# JMH 1.17 (released 47 days ago)
+# VM version: JDK 1.8.0_112, VM 25.112-b15
+# VM invoker: C:\Program Files\Java\jre1.8.0_112\bin\java.exe
+# VM options: -DBITMAP_TYPES=ROARING_ONLY
+# Warmup: 5 iterations, 1 s each
+# Measurement: 5 iterations, 1 s each
+# Timeout: 10 min per iteration
+# Threads: 1 thread, will synchronize iterations
+# Benchmark mode: Average time, time/op
+```
 
  Method | Dataset       | Score    /  Error  | Units |
 ------- | ------------- | ------------------ | ----- |
