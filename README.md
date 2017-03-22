@@ -39,13 +39,14 @@ Frequency=3906246 Hz, Resolution=256.0003 ns, Timer=TSC
   
 Type=MicroBenchmarkCensusIncome  Mode=Throughput
 ```
-  Method |       Mean |    StdDev |    Gen 0 | Allocated |
--------- |----------- |---------- |--------- |---------- |
-      Or |  2.2688 ms | 0.0042 ms | 846.8750 |   3.89 MB |
-     Xor |  2.3919 ms | 0.0073 ms | 872.9167 |   3.96 MB |
-     And |  2.2721 ms | 0.0031 ms | 233.3333 |   1.32 MB |
-  AndNot |  2.3636 ms | 0.0040 ms | 517.1875 |   2.49 MB |
- Iterate | 89.4243 ms | 0.0203 ms |        - |  43.52 kB |
+
+|  Method |       Mean |    StdDev |    Gen 0 | Allocated |
+| ------- | ---------- | --------- | -------- | --------- |
+|      Or |  2.2688 ms | 0.0042 ms | 846.8750 |   3.89 MB |
+|     Xor |  2.3919 ms | 0.0073 ms | 872.9167 |   3.96 MB |
+|     And |  2.2721 ms | 0.0031 ms | 233.3333 |   1.32 MB |
+|  AndNot |  2.3636 ms | 0.0040 ms | 517.1875 |   2.49 MB |
+| Iterate | 89.4243 ms | 0.0203 ms |        - |  43.52 kB |
  
  ``` ini
 
@@ -57,13 +58,14 @@ Frequency=3906246 Hz, Resolution=256.0003 ns, Timer=TSC
 
 Type=MicroBenchmarkCensus1881  Mode=Throughput  
 ```
-  Method |           Mean |    StdDev |   Gen 0 |   Gen 1 | Allocated |
--------- |--------------- |---------- |-------- |-------- |---------- |
-      Or |    234.7337 us | 0.1643 us | 82.4219 |       - | 392.01 kB |
-     Xor |    194.7747 us | 3.3360 us | 88.0859 |       - | 392.01 kB |
-     And |     65.8376 us | 0.3064 us |  5.7617 |       - |  35.42 kB |
-  AndNot |    156.3676 us | 0.0581 us | 73.4375 | 10.4167 | 330.47 kB |
- Iterate | 10,166.3848 us | 7.7011 us |       - |       - |  68.35 kB |
+
+|  Method |           Mean |    StdDev |   Gen 0 |   Gen 1 | Allocated |
+| ------- | -------------- | --------- | ------- | ------- | --------- |
+|      Or |    234.7337 us | 0.1643 us | 82.4219 |       - | 392.01 kB |
+|     Xor |    194.7747 us | 3.3360 us | 88.0859 |       - | 392.01 kB |
+|     And |     65.8376 us | 0.3064 us |  5.7617 |       - |  35.42 kB |
+|  AndNot |    156.3676 us | 0.0581 us | 73.4375 | 10.4167 | 330.47 kB |
+| Iterate | 10,166.3848 us | 7.7011 us |       - |       - |  68.35 kB |
 
 
 The Java output from the recent 0.6.32-SNAPSHOT version looks like this:
@@ -79,13 +81,13 @@ The Java output from the recent 0.6.32-SNAPSHOT version looks like this:
 # Benchmark mode: Average time, time/op
 ```
 
- Method | Dataset       | Score    /  Error  | Units |
-------- | ------------- | ------------------ | ----- |
- And    | census-income | 2251,305 ±  34,711 | us/op |
- And    | census1881    |   53,618 ±   0,603 | us/op |
- AndNot | census-income | 2829,971 ±   5,168 | us/op |
- AndNot | census1881    |  474,517 ±   6,497 | us/op |
- Or     | census-income | 2916,778 ±   3,628 | us/op |
- Or     | census1881    |  748,054 ±  15,839 | us/op |
- Xor    | census-income | 2845,861 ±  18,825 | us/op |
- Xor    | census1881    |  811,914 ±   1,656 | us/op |
+| Method | Dataset       | Score    /  Error  | Units |
+| ------ | ------------- | ------------------ | ----- |
+| And    | census-income | 2251,305 ±  34,711 | us/op |
+| And    | census1881    |   53,618 ±   0,603 | us/op |
+| AndNot | census-income | 2829,971 ±   5,168 | us/op |
+| AndNot | census1881    |  474,517 ±   6,497 | us/op |
+| Or     | census-income | 2916,778 ±   3,628 | us/op |
+| Or     | census1881    |  748,054 ±  15,839 | us/op |
+| Xor    | census-income | 2845,861 ±  18,825 | us/op |
+| Xor    | census1881    |  811,914 ±   1,656 | us/op |
