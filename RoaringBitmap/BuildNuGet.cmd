@@ -1,1 +1,0 @@
-nuget pack RoaringBitmap.nuspec
