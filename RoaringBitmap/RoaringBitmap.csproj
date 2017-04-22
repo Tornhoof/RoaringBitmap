@@ -10,16 +10,16 @@
     <Version>0.9.1</Version>
     <Description>RoaringBitmap for .NET</Description>
     <Authors>RoaringBitmap Contributors</Authors>
-    <Copyright>Copyright © Roaring Bitmap Contributors 2017</Copyright>
+    <Copyright>Copyright © RoaringBitmap Contributors 2017</Copyright>
     <Product>Roaring Bitmap</Product>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Collections" Version="4.0.11" />
-    <PackageReference Include="System.Linq" Version="4.1.0" />
-    <PackageReference Include="System.Runtime" Version="4.1.0" />
-    <PackageReference Include="System.Runtime.Extensions" Version="4.1.0" />
-    <PackageReference Include="System.Runtime.InteropServices" Version="4.1.0" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+    <PackageReference Include="System.Linq" Version="4.3.0" />
+    <PackageReference Include="System.Runtime" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
   </ItemGroup>
 
 </Project>
