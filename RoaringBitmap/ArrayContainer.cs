@@ -4,20 +4,20 @@ using System.IO;
 
 namespace Collections.Special
 {
-    internal class ArrayContainer : Container, IEquatable<ArrayContainer>
+    internal struct ArrayContainer : IContainer, IEquatable<ArrayContainer>
     {
-        public static readonly ArrayContainer One;
+        public static readonly ArrayContainer One = InitializeOneContainer();
         private readonly int m_Cardinality;
         private readonly ushort[] m_Content;
 
-        static ArrayContainer()
+        private static ArrayContainer InitializeOneContainer()
         {
-            var data = new ushort[MaxSize];
-            for (ushort i = 0; i < MaxSize; i++)
+            var data = new ushort[Container.MaxSize];
+            for (ushort i = 0; i < Container.MaxSize; i++)
             {
                 data[i] = i;
             }
-            One = new ArrayContainer(MaxSize, data);
+            return new ArrayContainer(Container.MaxSize, data);
         }
 
         private ArrayContainer(int cardinality, ushort[] data)
@@ -26,34 +26,9 @@ namespace Collections.Special
             m_Cardinality = cardinality;
         }
 
-        protected internal override int Cardinality => m_Cardinality;
+        public int Cardinality => m_Cardinality;
 
-        public override int ArraySizeInBytes => m_Cardinality * sizeof(ushort);
-
-
-        public bool Equals(ArrayContainer other)
-        {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (m_Cardinality != other.m_Cardinality)
-            {
-                return false;
-            }
-            for (var i = 0; i < m_Cardinality; i++)
-            {
-                if (m_Content[i] != other.m_Content[i])
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+        public int ArraySizeInBytes => m_Cardinality * sizeof(ushort);
 
         internal static ArrayContainer Create(ushort[] values)
         {
@@ -68,13 +43,12 @@ namespace Collections.Special
             return result;
         }
 
-        protected override bool EqualsInternal(Container other)
+        public bool EqualsInternal(IContainer other)
         {
-            var ac = other as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return other is ArrayContainer && Equals((ArrayContainer) other);
         }
 
-        public override IEnumerator<ushort> GetEnumerator()
+        public IEnumerator<ushort> GetEnumerator()
         {
             for (var i = 0; i < m_Cardinality; i++)
             {
@@ -83,7 +57,7 @@ namespace Collections.Special
         }
 
 
-        public static Container operator &(ArrayContainer x, ArrayContainer y)
+        public static IContainer And(ArrayContainer x, ArrayContainer y)
         {
             var desiredCapacity = Math.Min(x.m_Cardinality, y.m_Cardinality);
             var data = new ushort[desiredCapacity];
@@ -91,7 +65,7 @@ namespace Collections.Special
             return new ArrayContainer(calculatedCardinality, data);
         }
 
-        public static ArrayContainer operator &(ArrayContainer x, BitmapContainer y)
+        public static ArrayContainer And(ArrayContainer x, BitmapContainer y)
         {
             var data = new ushort[x.m_Content.Length];
             var c = x.m_Cardinality;
@@ -107,14 +81,14 @@ namespace Collections.Special
             return new ArrayContainer(pos, data);
         }
 
-        public static Container operator |(ArrayContainer x, ArrayContainer y)
+        public static IContainer Or(ref ArrayContainer x, ref ArrayContainer y)
         {
             var totalCardinality = x.m_Cardinality + y.m_Cardinality;
-            if (totalCardinality > MaxSize)
+            if (totalCardinality > Container.MaxSize)
             {
                 var output = new ushort[totalCardinality];
                 var calcCardinality = Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, output);
-                if (calcCardinality > MaxSize)
+                if (calcCardinality > Container.MaxSize)
                 {
                     return BitmapContainer.Create(calcCardinality, output);
                 }
@@ -126,23 +100,18 @@ namespace Collections.Special
             return new ArrayContainer(calculatedCardinality, data);
         }
 
-        public static Container operator |(ArrayContainer x, BitmapContainer y)
+        public static IContainer Not(ArrayContainer x)
         {
-            return y | x;
+            return BitmapContainer.Create(x.m_Cardinality, x.m_Content, true); // an arraycontainer only contains up to 4096 values, so the negation is a bitmap IContainer
         }
 
-        public static Container operator ~(ArrayContainer x)
-        {
-            return BitmapContainer.Create(x.m_Cardinality, x.m_Content, true); // an arraycontainer only contains up to 4096 values, so the negation is a bitmap container
-        }
-
-        public static Container operator ^(ArrayContainer x, ArrayContainer y)
+        public static IContainer Xor(ArrayContainer x, ArrayContainer y)
         {
             var totalCardinality = x.m_Cardinality + y.m_Cardinality;
-            if (totalCardinality > MaxSize)
+            if (totalCardinality > Container.MaxSize)
             {
                 var bc = BitmapContainer.CreateXor(x.m_Content, x.Cardinality, y.m_Content, y.Cardinality);
-                if (bc.Cardinality <= MaxSize)
+                if (bc.Cardinality <= Container.MaxSize)
                 {
                     Create(bc);
                 }
@@ -153,12 +122,8 @@ namespace Collections.Special
             return new ArrayContainer(calculatedCardinality, data);
         }
 
-        public static Container operator ^(ArrayContainer x, BitmapContainer y)
-        {
-            return y ^ x;
-        }
 
-        public static Container AndNot(ArrayContainer x, ArrayContainer y)
+        public static IContainer AndNot(ArrayContainer x, ArrayContainer y)
         {
             var desiredCapacity = x.m_Cardinality;
             var data = new ushort[desiredCapacity];
@@ -166,7 +131,7 @@ namespace Collections.Special
             return new ArrayContainer(calculatedCardinality, data);
         }
 
-        public static Container AndNot(ArrayContainer x, BitmapContainer y)
+        public static IContainer AndNot(ArrayContainer x, BitmapContainer y)
         {
             var data = new ushort[x.m_Content.Length];
             var c = x.m_Cardinality;
@@ -231,10 +196,25 @@ namespace Collections.Special
             return extraCardinality;
         }
 
+        public bool Equals(ArrayContainer other)
+        {
+            if (m_Cardinality != other.m_Cardinality)
+            {
+                return false;
+            }
+            for (var i = 0; i < m_Cardinality; i++)
+            {
+                if (m_Content[i] != other.m_Content[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public override bool Equals(object obj)
         {
-            var ac = obj as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return obj is ArrayContainer && Equals((ArrayContainer)obj);
         }
 
         public override int GetHashCode()

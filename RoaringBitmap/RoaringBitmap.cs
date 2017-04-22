@@ -68,7 +68,7 @@ namespace Collections.Special
         {
             var groupbyHb = values.Distinct().OrderBy(t => t).GroupBy(Util.HighBits).OrderBy(t => t.Key).ToList();
             var keys = new List<ushort>();
-            var containers = new List<Container>();
+            var containers = new List<IContainer>();
             var size = 0;
             foreach (var group in groupbyHb)
             {
@@ -142,8 +142,7 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            var ra = obj as RoaringArray;
-            return (ra != null) && Equals(ra);
+            return obj is RoaringArray && Equals((RoaringArray)obj);
         }
 
         public override int GetHashCode()

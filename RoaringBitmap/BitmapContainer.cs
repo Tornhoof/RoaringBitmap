@@ -5,21 +5,21 @@ using System.Runtime.CompilerServices;
 
 namespace Collections.Special
 {
-    internal class BitmapContainer : Container, IEquatable<BitmapContainer>
+    internal struct BitmapContainer : IContainer, IEquatable<BitmapContainer>
     {
         private const int BitmapLength = 1024;
-        public static readonly BitmapContainer One;
+        public static readonly BitmapContainer One = InitializeOneContainer();
         private readonly ulong[] m_Bitmap;
         private readonly int m_Cardinality;
 
-        static BitmapContainer()
+        private static BitmapContainer InitializeOneContainer()
         {
             var data = new ulong[BitmapLength];
             for (var i = 0; i < BitmapLength; i++)
             {
                 data[i] = ulong.MaxValue;
             }
-            One = new BitmapContainer(1 << 16, data);
+            return new BitmapContainer(1 << 16, data);
         }
 
         private BitmapContainer(int cardinality)
@@ -34,7 +34,7 @@ namespace Collections.Special
             m_Cardinality = cardinality;
         }
 
-        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? MaxCapacity - cardinality : cardinality)
+        private BitmapContainer(int cardinality, ushort[] values, bool negated) : this(negated ? Container.MaxCapacity - cardinality : cardinality)
         {
             if (negated)
             {
@@ -58,20 +58,12 @@ namespace Collections.Special
             }
         }
 
-        protected internal override int Cardinality => m_Cardinality;
+        public int Cardinality => m_Cardinality;
 
-        public override int ArraySizeInBytes => MaxCapacity / 8;
+        public int ArraySizeInBytes => Container.MaxCapacity / 8;
 
         public bool Equals(BitmapContainer other)
         {
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
             if (m_Cardinality != other.m_Cardinality)
             {
                 return false;
@@ -125,11 +117,11 @@ namespace Collections.Special
         ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
         ///     .NET
         /// </summary>
-        public static Container operator &(BitmapContainer x, BitmapContainer y)
+        public static IContainer And(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer)ArrayContainer.Create(bc) : bc;
         }
 
         private static ulong[] Clone(ulong[] data)
@@ -139,61 +131,56 @@ namespace Collections.Special
             return result;
         }
 
-        public static ArrayContainer operator &(BitmapContainer x, ArrayContainer y)
-        {
-            return y & x;
-        }
-
-        public static BitmapContainer operator |(BitmapContainer x, BitmapContainer y)
+        public static BitmapContainer Or(ref BitmapContainer x, ref BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             return new BitmapContainer(OrInternal(data, y.m_Bitmap), data);
         }
 
-        public static BitmapContainer operator |(BitmapContainer x, ArrayContainer y)
+        public static BitmapContainer Or(ref BitmapContainer x, ref ArrayContainer y)
         {
             var data = Clone(x.m_Bitmap);
             return new BitmapContainer(x.m_Cardinality + y.OrArray(data), data);
         }
 
-        public static Container operator ~(BitmapContainer x)
+        public static IContainer Not(BitmapContainer x)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(NotInternal(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer) ArrayContainer.Create(bc) : bc;
         }
 
         /// <summary>
         ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
         ///     .NET
         /// </summary>
-        public static Container operator ^(BitmapContainer x, BitmapContainer y)
+        public static IContainer Xor(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer) ArrayContainer.Create(bc) : bc;
         }
 
 
-        public static Container operator ^(BitmapContainer x, ArrayContainer y)
+        public static IContainer Xor(BitmapContainer x, ArrayContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.XorArray(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer) ArrayContainer.Create(bc) : bc;
         }
 
-        public static Container AndNot(BitmapContainer x, BitmapContainer y)
+        public static IContainer AndNot(BitmapContainer x, BitmapContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(AndNotInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer) ArrayContainer.Create(bc) : bc;
         }
 
-        public static Container AndNot(BitmapContainer x, ArrayContainer y)
+        public static IContainer AndNot(BitmapContainer x, ArrayContainer y)
         {
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.AndNotArray(data), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            return bc.m_Cardinality <= Container.MaxSize ? (IContainer) ArrayContainer.Create(bc) : bc;
         }
 
         private static int XorInternal(ulong[] first, ulong[] second)
@@ -258,13 +245,12 @@ namespace Collections.Special
             return (bitmap[x >> 6] & (1UL << x)) != 0;
         }
 
-        protected override bool EqualsInternal(Container other)
+        public bool EqualsInternal(IContainer other)
         {
-            var bc = other as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return other is BitmapContainer && Equals((BitmapContainer) other);
         }
 
-        public override IEnumerator<ushort> GetEnumerator()
+        public IEnumerator<ushort> GetEnumerator()
         {
             for (var k = 0; k < BitmapLength; k++)
             {
@@ -299,8 +285,7 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            var bc = obj as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return obj is BitmapContainer && Equals((BitmapContainer) obj);
         }
 
         public override int GetHashCode()
