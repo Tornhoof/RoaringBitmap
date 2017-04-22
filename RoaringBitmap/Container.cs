@@ -1,112 +1,105 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Runtime.CompilerServices;
 
 namespace Collections.Special
 {
-    internal abstract class Container : IEquatable<Container>
+    internal static class Container
     {
         public const int MaxSize = 4096; // everything <= is an ArrayContainer
         public const int MaxCapacity = 1 << 16;
 
-        protected internal abstract int Cardinality { get; }
-
-        public abstract int ArraySizeInBytes { get; }
-
-        public bool Equals(Container other)
+        public static bool Equals(IContainer x, IContainer y)
         {
-            if (ReferenceEquals(this, other))
+            if (ReferenceEquals(x, y))
             {
                 return true;
             }
-            if (ReferenceEquals(null, other))
+            if (ReferenceEquals(null, y))
             {
                 return false;
             }
-            return EqualsInternal(other);
+            if (ReferenceEquals(null, x))
+            {
+                return false;
+            }
+            return x.EqualsInternal(y);
         }
 
-        protected abstract bool EqualsInternal(Container other);
 
-        public abstract IEnumerator<ushort> GetEnumerator();
-
-        public static Container operator |(Container x, Container y)
+        public static IContainer Or(ref IContainer x, ref IContainer y)
         {
-            var xArrayContainer = x as ArrayContainer;
-            var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (x is ArrayContainer xac && y is ArrayContainer yac)
             {
-                return xArrayContainer | yArrayContainer;
+                return ArrayContainer.Or(ref xac, ref yac);
             }
-            if (xArrayContainer != null)
+            if (x is ArrayContainer xac2 && y is BitmapContainer ybc)
             {
-                return xArrayContainer | (BitmapContainer) y;
+                return BitmapContainer.Or(ref ybc, ref xac2);
             }
-            if (yArrayContainer != null)
+            if (x is BitmapContainer xbc && y is ArrayContainer yac2)
             {
-                return (BitmapContainer) x | yArrayContainer;
+                return BitmapContainer.Or(ref xbc, ref yac2);
             }
-            return (BitmapContainer) x | (BitmapContainer) y;
+            xbc = (BitmapContainer) x;
+            ybc = (BitmapContainer) y;
+            return BitmapContainer.Or(ref xbc, ref ybc);
         }
 
-        public static Container operator &(Container x, Container y)
+        public static IContainer And(IContainer x, IContainer y)
         {
-            var xArrayContainer = x as ArrayContainer;
-            var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (x is ArrayContainer xac && y is ArrayContainer yac)
             {
-                return xArrayContainer & yArrayContainer;
+                return ArrayContainer.And(xac, yac);
             }
-            if (xArrayContainer != null)
+            if (x is ArrayContainer xac2 && y is BitmapContainer ybc)
             {
-                return xArrayContainer & (BitmapContainer) y;
+                return ArrayContainer.And(xac2, ybc);
             }
-            if (yArrayContainer != null)
+            if (x is BitmapContainer xbc && y is ArrayContainer yac2)
             {
-                return (BitmapContainer) x & yArrayContainer;
+                return ArrayContainer.And(yac2, xbc);
             }
-            return (BitmapContainer) x & (BitmapContainer) y;
+            return BitmapContainer.And((BitmapContainer) x, (BitmapContainer) y);
         }
 
-        public static Container operator ^(Container x, Container y)
+        public static IContainer Xor(IContainer x, IContainer y)
         {
-            var xArrayContainer = x as ArrayContainer;
-            var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (x is ArrayContainer xac && y is ArrayContainer yac)
             {
-                return xArrayContainer ^ yArrayContainer;
+                return ArrayContainer.Xor(xac, yac);
             }
-            if (xArrayContainer != null)
+            if (x is ArrayContainer xac2 && y is BitmapContainer ybc)
             {
-                return xArrayContainer ^ (BitmapContainer) y;
+                return BitmapContainer.Xor(ybc, xac2);
             }
-            if (yArrayContainer != null)
+            if (x is BitmapContainer xbc && y is ArrayContainer yac2)
             {
-                return (BitmapContainer) x ^ yArrayContainer;
+                return BitmapContainer.Xor(xbc, yac2);
             }
-            return (BitmapContainer) x ^ (BitmapContainer) y;
+            return BitmapContainer.Xor((BitmapContainer) x, (BitmapContainer) y);
         }
 
-        public static Container operator ~(Container x)
+        public static IContainer Not(IContainer x)
         {
-            var xArrayContainer = x as ArrayContainer;
-            return xArrayContainer != null ? ~xArrayContainer : ~(BitmapContainer) x;
+            if (x is ArrayContainer ac)
+            {
+                return ArrayContainer.Not(ac);
+            }
+            return BitmapContainer.Not((BitmapContainer) x);
         }
 
-        public static Container AndNot(Container x, Container y)
+        public static IContainer AndNot(IContainer x, IContainer y)
         {
-            var xArrayContainer = x as ArrayContainer;
-            var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (x is ArrayContainer xac && y is ArrayContainer yac)
             {
-                return ArrayContainer.AndNot(xArrayContainer, yArrayContainer);
+                return ArrayContainer.AndNot(xac, yac);
             }
-            if (xArrayContainer != null)
+            if (x is ArrayContainer xac2 && y is BitmapContainer ybc)
             {
-                return ArrayContainer.AndNot(xArrayContainer, (BitmapContainer) y);
+                return ArrayContainer.AndNot(xac2, ybc);
             }
-            if (yArrayContainer != null)
+            if (x is BitmapContainer xbc && y is ArrayContainer yac2)
             {
-                return BitmapContainer.AndNot((BitmapContainer) x, yArrayContainer);
+                return BitmapContainer.AndNot(xbc, yac2);
             }
             return BitmapContainer.AndNot((BitmapContainer) x, (BitmapContainer) y);
         }
