@@ -1,12 +1,9 @@
 ﻿using System.IO;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Diagnostics.Windows.Configs;
 
 namespace RoaringBitmap.Benchmark.MicroBenchmarks
 {
-    [MemoryDiagnoser]
-    [InliningDiagnoser]
     public abstract class MicroBenchmark
     {
         private readonly Collections.Special.RoaringBitmap[] m_Bitmaps;
