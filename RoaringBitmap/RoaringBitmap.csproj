@@ -12,6 +12,7 @@
     <Authors>RoaringBitmap Contributors</Authors>
     <Copyright>Copyright © RoaringBitmap Contributors 2017</Copyright>
     <Product>Roaring Bitmap</Product>
+    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
   </PropertyGroup>
 
   <ItemGroup>
