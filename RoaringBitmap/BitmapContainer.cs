@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace Collections.Special
 {
-    internal struct BitmapContainer : IContainer, IEquatable<BitmapContainer>
+    internal readonly struct BitmapContainer : IContainer, IEquatable<BitmapContainer>
     {
         private const int BitmapLength = 1024;
         public static readonly BitmapContainer One = InitializeOneContainer();

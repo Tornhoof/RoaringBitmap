@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Collections.Special
 {
-    internal struct ArrayContainer : IContainer, IEquatable<ArrayContainer>
+    internal readonly struct ArrayContainer : IContainer, IEquatable<ArrayContainer>
     {
         public static readonly ArrayContainer One = InitializeOneContainer();
         private readonly int m_Cardinality;
