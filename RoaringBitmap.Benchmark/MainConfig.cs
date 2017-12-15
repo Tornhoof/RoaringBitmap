@@ -22,8 +22,7 @@ namespace RoaringBitmap.Benchmark
             Add(Job.Default.With(Runtime.Clr)
                    .With(Jit.RyuJit)
                    .With(Platform.X64)
-                   .WithId("NET4.7_RyuJIT-x64")
-                   .WithLaunchCount(1));
+                   .WithId("NET4.7_RyuJIT-x64"));
 
             Add(Job.Default.With(Runtime.Core)
                    .With(CsProjCoreToolchain.NetCoreApp20)
@@ -31,8 +30,7 @@ namespace RoaringBitmap.Benchmark
 
             Add(Job.Default.With(Runtime.Core)
                    .With(CsProjCoreToolchain.From(NetCoreAppSettings.NetCoreApp21))
-                   .WithId("Core2.1-x64")
-                   .WithLaunchCount(1));
+                   .WithId("Core2.1-x64"));
 
             Add(DefaultColumnProviders.Instance);
             Add(MarkdownExporter.GitHub);
