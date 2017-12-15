@@ -6,26 +6,25 @@ using System.Text;
 
 namespace Collections.Special
 {
-    internal class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
+    internal sealed class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
     {
         private const int SerialCookieNoRuncontainer = 12346;
         private const int SerialCookie = 12347;
         private const int NoOffsetThreshold = 4;
         private readonly ushort[] m_Keys;
         private readonly int m_Size;
-        private readonly IContainer[] m_Values;
+        private readonly Container[] m_Values;
 
 
         // ReSharper disable once SuggestBaseTypeForParameter
         /// <summary>
         ///     Use List directly, because the enumerator is a struct
         /// </summary>
-        internal RoaringArray(int size, List<ushort> keys, List<IContainer> containers)
+        internal RoaringArray(int size, List<ushort> keys, List<Container> containers)
         {
             m_Size = size;
             m_Keys = new ushort[m_Size];
-            m_Values = new IContainer[m_Size];
-            Cardinality = 0;
+            m_Values = new Container[m_Size];
             for (var i = 0; i < m_Size; i++)
             {
                 m_Keys[i] = keys[i];
@@ -34,12 +33,11 @@ namespace Collections.Special
             }
         }
 
-        private RoaringArray(int size, ushort[] keys, IContainer[] containers)
+        private RoaringArray(int size, ushort[] keys, Container[] containers)
         {
             m_Size = size;
             m_Keys = keys;
             m_Values = containers;
-            Cardinality = 0;
             for (var i = 0; i < containers.Length; i++)
             {
                 Cardinality += containers[i].Cardinality;
@@ -54,8 +52,8 @@ namespace Collections.Special
             {
                 var key = m_Keys[i];
                 var shiftedKey = key << 16;
-                var IContainer = m_Values[i];
-                foreach (var @ushort in IContainer)
+                var container = m_Values[i];
+                foreach (var @ushort in container)
                 {
                     yield return shiftedKey | @ushort;
                 }
@@ -101,7 +99,7 @@ namespace Collections.Special
             var xLength = x.m_Size;
             var yLength = y.m_Size;
             var keys = new List<ushort>(xLength + yLength);
-            var containers = new List<IContainer>(xLength + yLength);
+            var containers = new List<Container>(xLength + yLength);
             var size = 0;
             var xPos = 0;
             var yPos = 0;
@@ -114,7 +112,7 @@ namespace Collections.Special
                     if (xKey == yKey)
                     {
                         keys.Add(xKey);
-                        containers.Add(Container.Or(ref x.m_Values[xPos], ref y.m_Values[yPos]));
+                        containers.Add(x.m_Values[xPos] | y.m_Values[yPos]);
                         size++;
                         xPos++;
                         yPos++;
@@ -177,7 +175,7 @@ namespace Collections.Special
             var xLength = x.m_Size;
             var yLength = y.m_Size;
             List<ushort> keys = null;
-            List<IContainer> containers = null;
+            List<Container> containers = null;
             var size = 0;
             var xPos = 0;
             var yPos = 0;
@@ -187,14 +185,14 @@ namespace Collections.Special
                 var yKey = y.m_Keys[yPos];
                 if (xKey == yKey)
                 {
-                    var c = Container.And(x.m_Values[xPos], y.m_Values[yPos]);
+                    var c = x.m_Values[xPos] & y.m_Values[yPos];
                     if (c.Cardinality > 0)
                     {
                         if (keys == null)
                         {
                             var length = Math.Min(xLength, yLength);
                             keys = new List<ushort>(length);
-                            containers = new List<IContainer>(length);
+                            containers = new List<Container>(length);
                         }
                         keys.Add(xKey);
                         containers.Add(c);
@@ -220,7 +218,7 @@ namespace Collections.Special
             var xLength = x.m_Size;
             var yLength = y.m_Size;
             var keys = new List<ushort>(xLength + yLength);
-            var containers = new List<IContainer>(xLength + yLength);
+            var containers = new List<Container>(xLength + yLength);
             var size = 0;
             var xPos = 0;
             var yPos = 0;
@@ -233,7 +231,7 @@ namespace Collections.Special
                     if (xKey == yKey)
                     {
                         keys.Add(xKey);
-                        containers.Add(Container.Xor(x.m_Values[xPos], y.m_Values[yPos]));
+                        containers.Add(x.m_Values[xPos] ^ y.m_Values[yPos]);
                         size++;
                         xPos++;
                         yPos++;
@@ -295,7 +293,7 @@ namespace Collections.Special
         {
             var keys = new List<ushort>(Container.MaxCapacity);
             var size = 0;
-            var containers = new List<IContainer>(Container.MaxCapacity);
+            var containers = new List<Container>(Container.MaxCapacity);
             var oldIndex = 0;
             for (var i = 0; i < Container.MaxCapacity; i++)
             {
@@ -310,9 +308,9 @@ namespace Collections.Special
                 else
                 {
                     var c = x.m_Values[index];
-                    if (!c.Equals(BitmapContainer.One)) // the bitwise negation of the one IContainer is the zero IContainer
+                    if (!c.Equals(BitmapContainer.One)) // the bitwise negation of the one container is the zero container
                     {
-                        var nc = Container.Not(c);
+                        var nc = ~c;
                         if (nc.Cardinality > 0)
                         {
                             keys.Add(ushortI);
@@ -331,7 +329,7 @@ namespace Collections.Special
             var xLength = x.m_Size;
             var yLength = y.m_Size;
             var keys = new List<ushort>(xLength);
-            var containers = new List<IContainer>(xLength);
+            var containers = new List<Container>(xLength);
             var size = 0;
             var xPos = 0;
             var yPos = 0;
@@ -380,8 +378,9 @@ namespace Collections.Special
         }
 
         public override bool Equals(object obj)
-        { 
-            return obj is RoaringArray && Equals((RoaringArray)obj);
+        {
+            var ra = obj as RoaringArray;
+            return (ra != null) && Equals(ra);
         }
 
         public override int GetHashCode()
@@ -443,7 +442,9 @@ namespace Collections.Special
                 for (var k = 0; k < size; ++k)
                 {
                     var container = values[k];
-                    if (container is ArrayContainer ac)
+                    ArrayContainer ac;
+                    BitmapContainer bc;
+                    if ((ac = container as ArrayContainer) != null)
                     {
                         if (ac.Equals(ArrayContainer.One))
                         {
@@ -456,7 +457,7 @@ namespace Collections.Special
                             ArrayContainer.Serialize(ac, binaryWriter);
                         }
                     }
-                    else if (container is BitmapContainer bc)
+                    else if ((bc = container as BitmapContainer) != null)
                     {
                         if (bc.Equals(BitmapContainer.One))
                         {
@@ -499,7 +500,7 @@ namespace Collections.Special
                 var hasRun = lbcookie == SerialCookie;
                 var size = (int) (hasRun ? (cookie >> 16) + 1 : binaryReader.ReadUInt32());
                 var keys = new ushort[size];
-                var containers = new IContainer[size];
+                var containers = new Container[size];
                 var cardinalities = new int[size];
                 var isBitmap = new bool[size];
 
@@ -595,7 +596,7 @@ namespace Collections.Special
         {
             var keys = new ushort[roaringArray.m_Size];
             Array.Copy(roaringArray.m_Keys, keys, roaringArray.m_Size);
-            var containers = new IContainer[roaringArray.m_Size];
+            var containers = new Container[roaringArray.m_Size];
             for (var i = 0; i < roaringArray.m_Size; i++)
             {
                 var currentContainer = roaringArray.m_Values[i];

@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Collections.Special
 {
-    public class RoaringBitmap : IEnumerable<int>, IEquatable<RoaringBitmap>
+    public sealed class RoaringBitmap : IEnumerable<int>, IEquatable<RoaringBitmap>
     {
         private readonly RoaringArray m_HighLowContainer;
 
@@ -68,7 +68,7 @@ namespace Collections.Special
         {
             var groupbyHb = values.Distinct().OrderBy(t => t).GroupBy(Util.HighBits).OrderBy(t => t.Key).ToList();
             var keys = new List<ushort>();
-            var containers = new List<IContainer>();
+            var containers = new List<Container>();
             var size = 0;
             foreach (var group in groupbyHb)
             {
@@ -142,7 +142,8 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            return obj is RoaringArray && Equals((RoaringArray)obj);
+            var ra = obj as RoaringArray;
+            return (ra != null) && Equals(ra);
         }
 
         public override int GetHashCode()
