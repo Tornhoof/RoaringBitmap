@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.1</TargetFramework>
+    <TargetFrameworks>net47;netstandard1.1;netstandard2.0;netcoreapp2.1</TargetFrameworks>
     <PackageProjectUrl>https://github.com/Tornhoof/RoaringBitmap</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/Tornhoof/RoaringBitmap/blob/master/LICENSE</PackageLicenseUrl>
     <PackageTags>RoaringBitmap</PackageTags>
