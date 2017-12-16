@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Collections.Special.Internal;
 
 namespace Collections.Special
 {
@@ -33,10 +34,12 @@ namespace Collections.Special
             {
                 return true;
             }
+
             if (ReferenceEquals(null, other))
             {
                 return false;
             }
+
             return m_HighLowContainer.Equals(other.m_HighLowContainer);
         }
 
@@ -81,8 +84,10 @@ namespace Collections.Special
                 {
                     containers.Add(ArrayContainer.Create(group.Select(Util.LowBits).ToArray()));
                 }
+
                 size++;
             }
+
             return new RoaringBitmap(new RoaringArray(size, keys, containers));
         }
 
@@ -143,7 +148,7 @@ namespace Collections.Special
         public override bool Equals(object obj)
         {
             var ra = obj as RoaringArray;
-            return (ra != null) && Equals(ra);
+            return ra != null && Equals(ra);
         }
 
         public override int GetHashCode()

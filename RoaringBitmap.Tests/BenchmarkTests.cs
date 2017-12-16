@@ -40,6 +40,7 @@ namespace RoaringBitmap.Tests
             {
                 total += (bitmaps[k] | bitmaps[k + 1]).Cardinality;
             }
+
             Assert.Equal(value, total);
         }
 
@@ -65,6 +66,7 @@ namespace RoaringBitmap.Tests
             {
                 total += (bitmaps[k] ^ bitmaps[k + 1]).Cardinality;
             }
+
             Assert.Equal(value, total);
         }
 
@@ -90,6 +92,7 @@ namespace RoaringBitmap.Tests
             {
                 total += (bitmaps[k] & bitmaps[k + 1]).Cardinality;
             }
+
             Assert.Equal(value, total);
         }
 
@@ -121,6 +124,7 @@ namespace RoaringBitmap.Tests
                     }
                 }
             }
+
             Assert.Equal(value, total);
         }
 
@@ -172,6 +176,7 @@ namespace RoaringBitmap.Tests
             {
                 total += Collections.Special.RoaringBitmap.AndNot(bitmaps[k], bitmaps[k + 1]).Cardinality;
             }
+
             Assert.Equal(value, total);
         }
 
@@ -221,6 +226,7 @@ namespace RoaringBitmap.Tests
                         m_BitmapDictionary[name] = bitmaps;
                     }
                 }
+
                 return bitmaps;
             }
         }

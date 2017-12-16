@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Collections.Special
+namespace Collections.Special.Internal
 {
     internal class ArrayContainer : Container, IEquatable<ArrayContainer>
     {
@@ -17,6 +17,7 @@ namespace Collections.Special
             {
                 data[i] = i;
             }
+
             One = new ArrayContainer(MaxSize, data);
         }
 
@@ -37,14 +38,17 @@ namespace Collections.Special
             {
                 return true;
             }
+
             if (ReferenceEquals(null, other))
             {
                 return false;
             }
+
             if (m_Cardinality != other.m_Cardinality)
             {
                 return false;
             }
+
             for (var i = 0; i < m_Cardinality; i++)
             {
                 if (m_Content[i] != other.m_Content[i])
@@ -52,6 +56,7 @@ namespace Collections.Special
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -71,7 +76,7 @@ namespace Collections.Special
         protected override bool EqualsInternal(Container other)
         {
             var ac = other as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return ac != null && Equals(ac);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -104,6 +109,7 @@ namespace Collections.Special
                     data[pos++] = v;
                 }
             }
+
             return new ArrayContainer(pos, data);
         }
 
@@ -118,8 +124,10 @@ namespace Collections.Special
                 {
                     return BitmapContainer.Create(calcCardinality, output);
                 }
+
                 return new ArrayContainer(calcCardinality, output);
             }
+
             var desiredCapacity = totalCardinality;
             var data = new ushort[desiredCapacity];
             var calculatedCardinality = Util.UnionArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
@@ -147,6 +155,7 @@ namespace Collections.Special
                     Create(bc);
                 }
             }
+
             var desiredCapacity = totalCardinality;
             var data = new ushort[desiredCapacity];
             var calculatedCardinality = Util.XorArrays(x.m_Content, x.m_Cardinality, y.m_Content, y.m_Cardinality, data);
@@ -179,6 +188,7 @@ namespace Collections.Special
                     data[pos++] = v;
                 }
             }
+
             return new ArrayContainer(pos, data);
         }
 
@@ -195,6 +205,7 @@ namespace Collections.Special
                 bitmap[index] = after;
                 extraCardinality += (int) ((previous - after) >> 63);
             }
+
             return extraCardinality;
         }
 
@@ -211,6 +222,7 @@ namespace Collections.Special
                 bitmap[index] = previous ^ mask;
                 extraCardinality += (int) (1 - 2 * ((previous & mask) >> yValue));
             }
+
             return extraCardinality;
         }
 
@@ -228,13 +240,14 @@ namespace Collections.Special
                 bitmap[index] = after;
                 extraCardinality -= (int) ((previous ^ after) >> yValue);
             }
+
             return extraCardinality;
         }
 
         public override bool Equals(object obj)
         {
             var ac = obj as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return ac != null && Equals(ac);
         }
 
         public override int GetHashCode()
@@ -247,6 +260,7 @@ namespace Collections.Special
                 {
                     code = code * 23 + m_Content[i];
                 }
+
                 return code;
             }
         }
@@ -266,6 +280,7 @@ namespace Collections.Special
             {
                 data[i] = binaryReader.ReadUInt16();
             }
+
             return new ArrayContainer(cardinality, data);
         }
     }

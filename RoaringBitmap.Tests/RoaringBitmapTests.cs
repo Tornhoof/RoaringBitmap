@@ -26,10 +26,12 @@ namespace RoaringBitmap.Tests
             {
                 list.Add(i);
             }
+
             for (var i = 2 * baseValue; i < 3 * baseValue; i++)
             {
                 list.Add(i);
             }
+
             return list;
         }
 
@@ -46,10 +48,12 @@ namespace RoaringBitmap.Tests
             {
                 list.Add(i);
             }
+
             for (var i = 3 * baseValue; i < 4 * baseValue; i++)
             {
                 list.Add(i);
             }
+
             return list;
         }
 
@@ -72,6 +76,7 @@ namespace RoaringBitmap.Tests
                     list.Add(i);
                 }
             }
+
             return list;
         }
 
@@ -87,14 +92,17 @@ namespace RoaringBitmap.Tests
                 {
                     items.Add(k);
                 }
+
                 for (var k = 100000; k < 200000; ++k)
                 {
                     items.Add(3 * k);
                 }
+
                 for (var k = 700000; k < 800000; ++k)
                 {
                     items.Add(k);
                 }
+
                 var rb = Collections.Special.RoaringBitmap.Create(items);
                 var deserialized = Collections.Special.RoaringBitmap.Deserialize(reference);
                 Assert.Equal(rb, deserialized);
@@ -220,12 +228,13 @@ namespace RoaringBitmap.Tests
                 lists.Add(nextList);
                 rb &= Collections.Special.RoaringBitmap.Create(nextList);
             }
+
             var comparison = lists.Skip(1).Aggregate(new HashSet<int>(lists.First()),
-                                      (h, e) =>
-                                      {
-                                          h.IntersectWith(e);
-                                          return h;
-                                      });
+                (h, e) =>
+                {
+                    h.IntersectWith(e);
+                    return h;
+                });
             var rbList = rb.ToList();
             Assert.Equal(comparison, rbList);
         }
@@ -456,14 +465,17 @@ namespace RoaringBitmap.Tests
             {
                 items.Add(k);
             }
+
             for (var k = 100000; k < 200000; ++k)
             {
                 items.Add(3 * k);
             }
+
             for (var k = 700000; k < 800000; ++k)
             {
                 items.Add(k);
             }
+
             var rb = Collections.Special.RoaringBitmap.Create(items);
             using (var ms = new MemoryStream())
             {

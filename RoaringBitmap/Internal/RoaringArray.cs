@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Collections.Special
+namespace Collections.Special.Internal
 {
     internal class RoaringArray : IEnumerable<int>, IEquatable<RoaringArray>
     {
@@ -71,21 +71,25 @@ namespace Collections.Special
             {
                 return true;
             }
+
             if (ReferenceEquals(null, other))
             {
                 return false;
             }
+
             if (m_Size != other.m_Size)
             {
                 return false;
             }
+
             for (var i = 0; i < m_Size; i++)
             {
-                if ((m_Keys[i] != other.m_Keys[i]) || !m_Values[i].Equals(other.m_Values[i]))
+                if (m_Keys[i] != other.m_Keys[i] || !m_Values[i].Equals(other.m_Values[i]))
                 {
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -103,7 +107,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            if ((xPos < xLength) && (yPos < yLength))
+            if (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -116,10 +120,11 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         yPos++;
-                        if ((xPos == xLength) || (yPos == yLength))
+                        if (xPos == xLength || yPos == yLength)
                         {
                             break;
                         }
+
                         xKey = x.m_Keys[xPos];
                         yKey = y.m_Keys[yPos];
                     }
@@ -133,6 +138,7 @@ namespace Collections.Special
                         {
                             break;
                         }
+
                         xKey = x.m_Keys[xPos];
                     }
                     else
@@ -145,10 +151,12 @@ namespace Collections.Special
                         {
                             break;
                         }
+
                         yKey = y.m_Keys[yPos];
                     }
                 }
             }
+
             if (xPos == xLength)
             {
                 for (var i = yPos; i < yLength; i++)
@@ -167,6 +175,7 @@ namespace Collections.Special
                     size++;
                 }
             }
+
             return new RoaringArray(size, keys, containers);
         }
 
@@ -179,7 +188,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            while ((xPos < xLength) && (yPos < yLength))
+            while (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -194,10 +203,12 @@ namespace Collections.Special
                             keys = new List<ushort>(length);
                             containers = new List<Container>(length);
                         }
+
                         keys.Add(xKey);
                         containers.Add(c);
                         size++;
                     }
+
                     xPos++;
                     yPos++;
                 }
@@ -210,6 +221,7 @@ namespace Collections.Special
                     yPos = y.AdvanceUntil(xKey, yPos);
                 }
             }
+
             return new RoaringArray(size, keys, containers);
         }
 
@@ -222,7 +234,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            if ((xPos < xLength) && (yPos < yLength))
+            if (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -235,10 +247,11 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         yPos++;
-                        if ((xPos == xLength) || (yPos == yLength))
+                        if (xPos == xLength || yPos == yLength)
                         {
                             break;
                         }
+
                         xKey = x.m_Keys[xPos];
                         yKey = y.m_Keys[yPos];
                     }
@@ -252,6 +265,7 @@ namespace Collections.Special
                         {
                             break;
                         }
+
                         xKey = x.m_Keys[xPos];
                     }
                     else
@@ -264,10 +278,12 @@ namespace Collections.Special
                         {
                             break;
                         }
+
                         yKey = y.m_Keys[yPos];
                     }
                 }
             }
+
             if (xPos == xLength)
             {
                 for (var i = yPos; i < yLength; i++)
@@ -286,6 +302,7 @@ namespace Collections.Special
                     size++;
                 }
             }
+
             return new RoaringArray(size, keys, containers);
         }
 
@@ -318,9 +335,11 @@ namespace Collections.Special
                             size++;
                         }
                     }
+
                     oldIndex = index;
                 }
             }
+
             return new RoaringArray(size, keys, containers);
         }
 
@@ -333,7 +352,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            while ((xPos < xLength) && (yPos < yLength))
+            while (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -346,6 +365,7 @@ namespace Collections.Special
                         containers.Add(c);
                         size++;
                     }
+
                     xPos++;
                     yPos++;
                 }
@@ -358,6 +378,7 @@ namespace Collections.Special
                         containers.Add(x.m_Values[i]);
                         size++;
                     }
+
                     xPos = next;
                 }
                 else
@@ -365,6 +386,7 @@ namespace Collections.Special
                     yPos = y.AdvanceUntil(xKey, yPos);
                 }
             }
+
             if (yPos == yLength)
             {
                 for (var i = xPos; i < xLength; i++)
@@ -374,13 +396,14 @@ namespace Collections.Special
                     size++;
                 }
             }
+
             return new RoaringArray(size, keys, containers);
         }
 
         public override bool Equals(object obj)
         {
             var ra = obj as RoaringArray;
-            return (ra != null) && Equals(ra);
+            return ra != null && Equals(ra);
         }
 
         public override int GetHashCode()
@@ -394,6 +417,7 @@ namespace Collections.Special
                     code = code * 23 + m_Keys[i].GetHashCode();
                     code = code * 23 + m_Values[i].GetHashCode();
                 }
+
                 return code;
             }
         }
@@ -418,6 +442,7 @@ namespace Collections.Special
                             bitmapOfRunContainers[i / 8] |= (byte) (1 << (i % 8));
                         }
                     }
+
                     binaryWriter.Write(bitmapOfRunContainers);
                 }
                 else // no run containers
@@ -426,12 +451,14 @@ namespace Collections.Special
                     binaryWriter.Write(size);
                     startOffset = 4 + 4 + 4 * size + 4 * size;
                 }
+
                 for (var k = 0; k < size; ++k)
                 {
                     binaryWriter.Write(keys[k]);
                     binaryWriter.Write((ushort) (values[k].Cardinality - 1));
                 }
-                if (!hasRun || (size >= NoOffsetThreshold))
+
+                if (!hasRun || size >= NoOffsetThreshold)
                 {
                     for (var k = 0; k < size; k++)
                     {
@@ -439,6 +466,7 @@ namespace Collections.Special
                         startOffset += values[k].ArraySizeInBytes;
                     }
                 }
+
                 for (var k = 0; k < size; ++k)
                 {
                     var container = values[k];
@@ -471,6 +499,7 @@ namespace Collections.Special
                         }
                     }
                 }
+
                 binaryWriter.Flush();
             }
         }
@@ -484,6 +513,7 @@ namespace Collections.Special
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -493,10 +523,11 @@ namespace Collections.Special
             {
                 var cookie = binaryReader.ReadUInt32();
                 var lbcookie = cookie & 0xFFFF;
-                if ((lbcookie != SerialCookie) && (cookie != SerialCookieNoRuncontainer))
+                if (lbcookie != SerialCookie && cookie != SerialCookieNoRuncontainer)
                 {
                     throw new InvalidDataException("No RoaringBitmap file.");
                 }
+
                 var hasRun = lbcookie == SerialCookie;
                 var size = (int) (hasRun ? (cookie >> 16) + 1 : binaryReader.ReadUInt32());
                 var keys = new ushort[size];
@@ -510,28 +541,31 @@ namespace Collections.Special
                 {
                     bitmapOfRunContainers = binaryReader.ReadBytes((size + 7) / 8);
                 }
+
                 for (var k = 0; k < size; ++k)
                 {
                     keys[k] = binaryReader.ReadUInt16();
                     cardinalities[k] = 1 + (0xFFFF & binaryReader.ReadUInt16());
                     isBitmap[k] = cardinalities[k] > Container.MaxSize;
-                    if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    if (bitmapOfRunContainers != null && (bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0)
                     {
                         isBitmap[k] = false;
                     }
                 }
-                if (!hasRun || (size >= NoOffsetThreshold))
+
+                if (!hasRun || size >= NoOffsetThreshold)
                 {
                     // skipping the offsets
                     binaryReader.ReadBytes(size * 4);
                 }
+
                 for (var k = 0; k < size; ++k)
                 {
                     if (isBitmap[k])
                     {
                         containers[k] = BitmapContainer.Deserialize(binaryReader, cardinalities[k]);
                     }
-                    else if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    else if (bitmapOfRunContainers != null && (bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0)
                     {
                         var nbrruns = binaryReader.ReadUInt16();
                         var values = new List<ushort>(nbrruns * 2); // probably more
@@ -542,24 +576,28 @@ namespace Collections.Special
                             var value = binaryReader.ReadUInt16();
                             var length = binaryReader.ReadUInt16();
 
-                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxCapacity - 1)) // special one scenario
+                            if (nbrruns == 1 && value == 0 && length == Container.MaxCapacity - 1) // special one scenario
                             {
                                 containers[k] = BitmapContainer.One;
                                 specialCase = true;
                                 break;
                             }
-                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxSize - 1)) // special one scenario
+
+                            if (nbrruns == 1 && value == 0 && length == Container.MaxSize - 1) // special one scenario
                             {
                                 containers[k] = ArrayContainer.One;
                                 specialCase = true;
                                 break;
                             }
+
                             for (int i = value; i < value + length + 1; i++)
                             {
                                 values.Add((ushort) i);
                             }
+
                             count += length;
                         }
+
                         if (!specialCase)
                         {
                             if (count > Container.MaxSize)
@@ -577,6 +615,7 @@ namespace Collections.Special
                         containers[k] = ArrayContainer.Deserialize(binaryReader, cardinalities[k]);
                     }
                 }
+
                 for (var i = 0; i < size; i++)
                 {
                     if (containers[i].Equals(ArrayContainer.One))
@@ -588,6 +627,7 @@ namespace Collections.Special
                         containers[i] = BitmapContainer.One;
                     }
                 }
+
                 return new RoaringArray(size, keys, containers);
             }
         }
@@ -613,6 +653,7 @@ namespace Collections.Special
                     containers[i] = currentContainer;
                 }
             }
+
             return new RoaringArray(roaringArray.m_Size, keys, containers);
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace Collections.Special
+namespace Collections.Special.Internal
 {
     /// <summary>
     ///     Pretty much everything in here are straight conversions from the original Util class in the java Roaring Bitmap
@@ -34,6 +34,7 @@ namespace Collections.Special
             {
                 result += BitCount(xArray[i]);
             }
+
             return result;
         }
 
@@ -52,11 +53,13 @@ namespace Collections.Special
                 ArrayCopy(set1, 0, buffer, 0, length1);
                 return length1;
             }
+
             if (0 == length1)
             {
                 ArrayCopy(set2, 0, buffer, 0, length2);
                 return length2;
             }
+
             var s1 = set1[k1];
             var s2 = set2[k2];
             while (true)
@@ -72,6 +75,7 @@ namespace Collections.Special
                         ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
+
                     s1 = set1[k1];
                 }
                 else if (v1 == v2)
@@ -84,11 +88,13 @@ namespace Collections.Special
                         ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
+
                     if (k2 >= length2)
                     {
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s1 = set1[k1];
                     s2 = set2[k2];
                 }
@@ -101,6 +107,7 @@ namespace Collections.Special
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s2 = set2[k2];
                 }
             }
@@ -115,10 +122,12 @@ namespace Collections.Special
                 ArrayCopy(set1, 0, buffer, 0, length1);
                 return length1;
             }
+
             if (0 == length1)
             {
                 return 0;
             }
+
             var s1 = set1[k1];
             var s2 = set2[k2];
             while (true)
@@ -131,6 +140,7 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     s1 = set1[k1];
                 }
                 else if (s1 == s2)
@@ -141,11 +151,13 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     if (k2 >= length2)
                     {
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s1 = set1[k1];
                     s2 = set2[k2];
                 }
@@ -157,9 +169,11 @@ namespace Collections.Special
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s2 = set2[k2];
                 }
             }
+
             return pos;
         }
 
@@ -169,19 +183,22 @@ namespace Collections.Special
             {
                 return OneSidedGallopingIntersect2By2(set1, length1, set2, length2, buffer);
             }
+
             if (set2.Length << 6 < set1.Length)
             {
                 return OneSidedGallopingIntersect2By2(set2, length2, set1, length1, buffer);
             }
+
             return LocalIntersect2By2(set1, length1, set2, length2, buffer);
         }
 
         private static int LocalIntersect2By2(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
-            if ((0 == length1) || (0 == length2))
+            if (0 == length1 || 0 == length2)
             {
                 return 0;
             }
+
             var k1 = 0;
             var k2 = 0;
             var pos = 0;
@@ -201,10 +218,12 @@ namespace Collections.Special
                         {
                             return pos;
                         }
+
                         s2 = set2[k2];
                         v2 = s2;
                     } while (v2 < v1);
                 }
+
                 if (v1 < v2)
                 {
                     do
@@ -214,6 +233,7 @@ namespace Collections.Special
                         {
                             return pos;
                         }
+
                         s1 = set1[k1];
                         v1 = s1;
                     } while (v1 < v2);
@@ -226,15 +246,18 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     ++k2;
                     if (k2 == length2)
                     {
                         break;
                     }
+
                     s1 = set1[k1];
                     s2 = set2[k2];
                 }
             }
+
             return pos;
         }
 
@@ -244,6 +267,7 @@ namespace Collections.Special
             {
                 return 0;
             }
+
             var k1 = 0;
             var k2 = 0;
             var pos = 0;
@@ -258,8 +282,10 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     s1 = largeSet[k1];
                 }
+
                 if (s2 < s1)
                 {
                     ++k2;
@@ -267,6 +293,7 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     s2 = smallSet[k2];
                 }
                 else // (set2[k2] == set1[k1])
@@ -277,15 +304,18 @@ namespace Collections.Special
                     {
                         break;
                     }
+
                     s2 = smallSet[k2];
                     k1 = AdvanceUntil(largeSet, k1, largeLength, s2);
                     if (k1 == largeLength)
                     {
                         break;
                     }
+
                     s1 = largeSet[k1];
                 }
             }
+
             return pos;
         }
 
@@ -298,10 +328,11 @@ namespace Collections.Special
         public static int AdvanceUntil(ushort[] array, int pos, int length, ushort min)
         {
             var start = pos + 1; // check the next one
-            if ((start >= length) || (array[start] >= min)) // the simple cases
+            if (start >= length || array[start] >= min) // the simple cases
             {
                 return start;
             }
+
             var result = Array.BinarySearch(array, start, length - start, min);
             return result < 0 ? ~result : result;
         }
@@ -327,11 +358,13 @@ namespace Collections.Special
                 ArrayCopy(set1, 0, buffer, 0, length1);
                 return length1;
             }
+
             if (0 == length1)
             {
                 ArrayCopy(set2, 0, buffer, 0, length2);
                 return length2;
             }
+
             var s1 = set1[k1];
             var s2 = set2[k2];
             while (true)
@@ -345,6 +378,7 @@ namespace Collections.Special
                         ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
+
                     s1 = set1[k1];
                 }
                 else if (s1 == s2)
@@ -356,11 +390,13 @@ namespace Collections.Special
                         ArrayCopy(set2, k2, buffer, pos, length2 - k2);
                         return pos + length2 - k2;
                     }
+
                     if (k2 >= length2)
                     {
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s1 = set1[k1];
                     s2 = set2[k2];
                 }
@@ -373,6 +409,7 @@ namespace Collections.Special
                         ArrayCopy(set1, k1, buffer, pos, length1 - k1);
                         return pos + length1 - k1;
                     }
+
                     s2 = set2[k2];
                 }
             }

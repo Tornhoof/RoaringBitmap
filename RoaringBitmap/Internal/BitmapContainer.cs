@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Collections.Special
+namespace Collections.Special.Internal
 {
     internal class BitmapContainer : Container, IEquatable<BitmapContainer>
     {
@@ -19,6 +19,7 @@ namespace Collections.Special
             {
                 data[i] = ulong.MaxValue;
             }
+
             One = new BitmapContainer(1 << 16, data);
         }
 
@@ -42,6 +43,7 @@ namespace Collections.Special
                 {
                     m_Bitmap[i] = ulong.MaxValue;
                 }
+
                 for (var i = 0; i < cardinality; i++)
                 {
                     var v = values[i];
@@ -68,14 +70,17 @@ namespace Collections.Special
             {
                 return true;
             }
+
             if (ReferenceEquals(null, other))
             {
                 return false;
             }
+
             if (m_Cardinality != other.m_Cardinality)
             {
                 return false;
             }
+
             for (var i = 0; i < BitmapLength; i++)
             {
                 if (m_Bitmap[i] != other.m_Bitmap[i])
@@ -83,6 +88,7 @@ namespace Collections.Special
                     return false;
                 }
             }
+
             return true;
         }
 
@@ -117,6 +123,7 @@ namespace Collections.Special
                 var v = second[i];
                 data[v >> 6] ^= 1UL << v;
             }
+
             var cardinality = Util.BitCount(data);
             return new BitmapContainer(cardinality, data);
         }
@@ -202,6 +209,7 @@ namespace Collections.Special
             {
                 first[k] = first[k] ^ second[k];
             }
+
             var c = Util.BitCount(first);
             return c;
         }
@@ -212,6 +220,7 @@ namespace Collections.Special
             {
                 first[k] = first[k] & ~second[k];
             }
+
             var c = Util.BitCount(first);
             return c;
         }
@@ -222,6 +231,7 @@ namespace Collections.Special
             {
                 data[k] = ~data[k];
             }
+
             var c = Util.BitCount(data);
             return c;
         }
@@ -232,6 +242,7 @@ namespace Collections.Special
             {
                 first[k] = first[k] | second[k];
             }
+
             var c = Util.BitCount(first);
             return c;
         }
@@ -242,6 +253,7 @@ namespace Collections.Special
             {
                 first[k] = first[k] & second[k];
             }
+
             var c = Util.BitCount(first);
             return c;
         }
@@ -261,7 +273,7 @@ namespace Collections.Special
         protected override bool EqualsInternal(Container other)
         {
             var bc = other as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return bc != null && Equals(bc);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -294,13 +306,14 @@ namespace Collections.Special
                     bitset ^= t;
                 }
             }
+
             return m_Cardinality;
         }
 
         public override bool Equals(object obj)
         {
             var bc = obj as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return bc != null && Equals(bc);
         }
 
         public override int GetHashCode()
@@ -313,6 +326,7 @@ namespace Collections.Special
                 {
                     code = code * 23 + m_Bitmap[i].GetHashCode();
                 }
+
                 return code;
             }
         }
@@ -332,6 +346,7 @@ namespace Collections.Special
             {
                 data[i] = binaryReader.ReadUInt64();
             }
+
             return new BitmapContainer(cardinality, data);
         }
     }
