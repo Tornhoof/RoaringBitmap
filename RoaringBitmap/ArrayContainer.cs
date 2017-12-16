@@ -70,8 +70,7 @@ namespace Collections.Special
 
         protected override bool EqualsInternal(Container other)
         {
-            var ac = other as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return other is ArrayContainer ac && Equals(ac);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -233,8 +232,7 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            var ac = obj as ArrayContainer;
-            return (ac != null) && Equals(ac);
+            return obj is ArrayContainer ac && Equals(ac);
         }
 
         public override int GetHashCode()

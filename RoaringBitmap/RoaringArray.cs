@@ -81,7 +81,7 @@ namespace Collections.Special
             }
             for (var i = 0; i < m_Size; i++)
             {
-                if ((m_Keys[i] != other.m_Keys[i]) || !m_Values[i].Equals(other.m_Values[i]))
+                if (m_Keys[i] != other.m_Keys[i] || !m_Values[i].Equals(other.m_Values[i]))
                 {
                     return false;
                 }
@@ -103,7 +103,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            if ((xPos < xLength) && (yPos < yLength))
+            if (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -116,7 +116,7 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         yPos++;
-                        if ((xPos == xLength) || (yPos == yLength))
+                        if (xPos == xLength || yPos == yLength)
                         {
                             break;
                         }
@@ -179,7 +179,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            while ((xPos < xLength) && (yPos < yLength))
+            while (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -222,7 +222,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            if ((xPos < xLength) && (yPos < yLength))
+            if (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -235,7 +235,7 @@ namespace Collections.Special
                         size++;
                         xPos++;
                         yPos++;
-                        if ((xPos == xLength) || (yPos == yLength))
+                        if (xPos == xLength || yPos == yLength)
                         {
                             break;
                         }
@@ -333,7 +333,7 @@ namespace Collections.Special
             var size = 0;
             var xPos = 0;
             var yPos = 0;
-            while ((xPos < xLength) && (yPos < yLength))
+            while (xPos < xLength && yPos < yLength)
             {
                 var xKey = x.m_Keys[xPos];
                 var yKey = y.m_Keys[yPos];
@@ -380,7 +380,7 @@ namespace Collections.Special
         public override bool Equals(object obj)
         {
             var ra = obj as RoaringArray;
-            return (ra != null) && Equals(ra);
+            return ra != null && Equals(ra);
         }
 
         public override int GetHashCode()
@@ -431,7 +431,7 @@ namespace Collections.Special
                     binaryWriter.Write(keys[k]);
                     binaryWriter.Write((ushort) (values[k].Cardinality - 1));
                 }
-                if (!hasRun || (size >= NoOffsetThreshold))
+                if (!hasRun || size >= NoOffsetThreshold)
                 {
                     for (var k = 0; k < size; k++)
                     {
@@ -493,7 +493,7 @@ namespace Collections.Special
             {
                 var cookie = binaryReader.ReadUInt32();
                 var lbcookie = cookie & 0xFFFF;
-                if ((lbcookie != SerialCookie) && (cookie != SerialCookieNoRuncontainer))
+                if (lbcookie != SerialCookie && cookie != SerialCookieNoRuncontainer)
                 {
                     throw new InvalidDataException("No RoaringBitmap file.");
                 }
@@ -515,12 +515,12 @@ namespace Collections.Special
                     keys[k] = binaryReader.ReadUInt16();
                     cardinalities[k] = 1 + (0xFFFF & binaryReader.ReadUInt16());
                     isBitmap[k] = cardinalities[k] > Container.MaxSize;
-                    if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    if (bitmapOfRunContainers != null && (bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0)
                     {
                         isBitmap[k] = false;
                     }
                 }
-                if (!hasRun || (size >= NoOffsetThreshold))
+                if (!hasRun || size >= NoOffsetThreshold)
                 {
                     // skipping the offsets
                     binaryReader.ReadBytes(size * 4);
@@ -531,7 +531,7 @@ namespace Collections.Special
                     {
                         containers[k] = BitmapContainer.Deserialize(binaryReader, cardinalities[k]);
                     }
-                    else if ((bitmapOfRunContainers != null) && ((bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0))
+                    else if (bitmapOfRunContainers != null && (bitmapOfRunContainers[k / 8] & (1 << (k % 8))) != 0)
                     {
                         var nbrruns = binaryReader.ReadUInt16();
                         var values = new List<ushort>(nbrruns * 2); // probably more
@@ -542,13 +542,13 @@ namespace Collections.Special
                             var value = binaryReader.ReadUInt16();
                             var length = binaryReader.ReadUInt16();
 
-                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxCapacity - 1)) // special one scenario
+                            if (nbrruns == 1 && value == 0 && length == Container.MaxCapacity - 1) // special one scenario
                             {
                                 containers[k] = BitmapContainer.One;
                                 specialCase = true;
                                 break;
                             }
-                            if ((nbrruns == 1) && (value == 0) && (length == Container.MaxSize - 1)) // special one scenario
+                            if (nbrruns == 1 && value == 0 && length == Container.MaxSize - 1) // special one scenario
                             {
                                 containers[k] = ArrayContainer.One;
                                 specialCase = true;

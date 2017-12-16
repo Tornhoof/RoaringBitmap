@@ -9,7 +9,7 @@ namespace RoaringBitmap.Benchmark
         private static void Main(string[] args)
         {
             //var types = typeof(MicroBenchmark).Assembly.GetTypes().Where(t => !t.IsAbstract && typeof(MicroBenchmark).IsAssignableFrom(t)).ToList();
-            var types = new[] { typeof(MicroBenchmarkCensusIncome) };
+            var types = new[] { typeof(MicroBenchmarkCensusIncome), typeof(MicroBenchmarkCensus1881) };
             var config = new MainConfig();
             foreach (var type in types)
             {

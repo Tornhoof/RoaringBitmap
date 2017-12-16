@@ -68,11 +68,8 @@ namespace Collections.Special
             {
                 return true;
             }
-            if (ReferenceEquals(null, other))
-            {
-                return false;
-            }
-            if (m_Cardinality != other.m_Cardinality)
+
+            if (m_Cardinality != other?.m_Cardinality)
             {
                 return false;
             }
@@ -125,11 +122,35 @@ namespace Collections.Special
         ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
         ///     .NET
         /// </summary>
+        //public static Container operator &(BitmapContainer x, BitmapContainer y)
+        //{
+        //    var data = Clone(x.m_Bitmap);
+        //    var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
+        //    return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+        //}
+
         public static Container operator &(BitmapContainer x, BitmapContainer y)
         {
-            var data = Clone(x.m_Bitmap);
-            var bc = new BitmapContainer(AndInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            int newCardinality = 0;
+            for (int k = 0; k < BitmapLength; k++)
+            {
+                newCardinality += Util.BitCount(x.m_Bitmap[k] & y.m_Bitmap[k]);
+            }
+
+            if (newCardinality > MaxSize)
+            {
+                var bitmapData = Clone(x.m_Bitmap);
+                for (var k = 0; k < BitmapLength; k++)
+                {
+                    bitmapData[k] = bitmapData[k] & y.m_Bitmap[k];
+                }
+
+                return new BitmapContainer(newCardinality, bitmapData);
+            }
+
+            var data = new ushort[newCardinality];
+            FillArrayAnd(data, x.m_Bitmap, y.m_Bitmap);
+            return ArrayContainer.Create(data);
         }
 
         private static ulong[] Clone(ulong[] data)
@@ -167,11 +188,35 @@ namespace Collections.Special
         ///     Java version has an optimized version of this, but it's using bitcount internally which should make it slower in
         ///     .NET
         /// </summary>
+        //public static Container operator ^(BitmapContainer x, BitmapContainer y)
+        //{
+        //    var data = Clone(x.m_Bitmap);
+        //    var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
+        //    return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+        //}
+
         public static Container operator ^(BitmapContainer x, BitmapContainer y)
         {
-            var data = Clone(x.m_Bitmap);
-            var bc = new BitmapContainer(XorInternal(data, y.m_Bitmap), data);
-            return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
+            int newCardinality = 0;
+            for (int k = 0; k < BitmapLength; k++)
+            {
+                newCardinality += Util.BitCount(x.m_Bitmap[k] ^ y.m_Bitmap[k]);
+            }
+
+            if (newCardinality > MaxSize)
+            {
+                var bitmapData = Clone(x.m_Bitmap);
+                for (var k = 0; k < BitmapLength; k++)
+                {
+                    bitmapData[k] = bitmapData[k] ^ y.m_Bitmap[k];
+                }
+
+                return new BitmapContainer(newCardinality, bitmapData);
+            }
+
+            var data = new ushort[newCardinality];
+            FillArrayXor(data, x.m_Bitmap, y.m_Bitmap);
+            return ArrayContainer.Create(data);
         }
 
 
@@ -194,16 +239,6 @@ namespace Collections.Special
             var data = Clone(x.m_Bitmap);
             var bc = new BitmapContainer(x.m_Cardinality + y.AndNotArray(data), data);
             return bc.m_Cardinality <= MaxSize ? (Container) ArrayContainer.Create(bc) : bc;
-        }
-
-        private static int XorInternal(ulong[] first, ulong[] second)
-        {
-            for (var k = 0; k < BitmapLength; k++)
-            {
-                first[k] = first[k] ^ second[k];
-            }
-            var c = Util.BitCount(first);
-            return c;
         }
 
         private static int AndNotInternal(ulong[] first, ulong[] second)
@@ -236,16 +271,6 @@ namespace Collections.Special
             return c;
         }
 
-        private static int AndInternal(ulong[] first, ulong[] second)
-        {
-            for (var k = 0; k < BitmapLength; k++)
-            {
-                first[k] = first[k] & second[k];
-            }
-            var c = Util.BitCount(first);
-            return c;
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Contains(ushort x)
         {
@@ -260,8 +285,7 @@ namespace Collections.Special
 
         protected override bool EqualsInternal(Container other)
         {
-            var bc = other as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return other is BitmapContainer bc && Equals(bc);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -297,10 +321,41 @@ namespace Collections.Special
             return m_Cardinality;
         }
 
+        private static void FillArrayAnd(ushort[] data, ulong[] bitmap1, ulong[] bitmap2)
+        {
+            var pos = 0;
+            for (var k = 0; k < BitmapLength; k++)
+            {
+                var bitset = bitmap1[k] & bitmap2[k];
+                var shiftedK = k << 6;
+                while (bitset != 0)
+                {
+                    var t = bitset & (~bitset + 1);
+                    data[pos++] = (ushort) (shiftedK + Util.BitCount(t - 1));
+                    bitset ^= t;
+                }
+            }
+        }
+
+        private static void FillArrayXor(ushort[] data, ulong[] bitmap1, ulong[] bitmap2)
+        {
+            var pos = 0;
+            for (var k = 0; k < BitmapLength; k++)
+            {
+                var bitset = bitmap1[k] ^ bitmap2[k];
+                var shiftedK = k << 6;
+                while (bitset != 0)
+                {
+                    var t = bitset & (~bitset + 1);
+                    data[pos++] = (ushort)(shiftedK + Util.BitCount(t - 1));
+                    bitset ^= t;
+                }
+            }
+        }
+
         public override bool Equals(object obj)
         {
-            var bc = obj as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return obj is BitmapContainer bc && Equals(bc);
         }
 
         public override int GetHashCode()

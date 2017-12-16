@@ -16,6 +16,12 @@ namespace Collections.Special
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int BitCount(ulong x)
         {
+#if NETCOREAPP2_1
+            if (System.Runtime.Intrinsics.X86.Popcnt.IsSupported && Environment.Is64BitProcess)
+            {
+                return (int) System.Runtime.Intrinsics.X86.Popcnt.PopCount(x);
+            }
+#endif
             x -= (x >> 1) & 0x5555555555555555UL; //put count of each 2 bits into those 2 bits
             x = (x & 0x3333333333333333UL) + ((x >> 2) & 0x3333333333333333UL); //put count of each 4 bits into those 4 bits 
             x = (x + (x >> 4)) & 0x0F0F0F0F0F0F0F0FUL; //put count of each 8 bits into those 8 bits 
@@ -178,7 +184,7 @@ namespace Collections.Special
 
         private static int LocalIntersect2By2(ushort[] set1, int length1, ushort[] set2, int length2, ushort[] buffer)
         {
-            if ((0 == length1) || (0 == length2))
+            if (0 == length1 || 0 == length2)
             {
                 return 0;
             }
@@ -298,7 +304,7 @@ namespace Collections.Special
         public static int AdvanceUntil(ushort[] array, int pos, int length, ushort min)
         {
             var start = pos + 1; // check the next one
-            if ((start >= length) || (array[start] >= min)) // the simple cases
+            if (start >= length || array[start] >= min) // the simple cases
             {
                 return start;
             }

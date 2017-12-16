@@ -33,7 +33,7 @@ namespace Collections.Special
         {
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (xArrayContainer != null && yArrayContainer != null)
             {
                 return xArrayContainer | yArrayContainer;
             }
@@ -52,7 +52,7 @@ namespace Collections.Special
         {
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (xArrayContainer != null && yArrayContainer != null)
             {
                 return xArrayContainer & yArrayContainer;
             }
@@ -71,7 +71,7 @@ namespace Collections.Special
         {
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (xArrayContainer != null && yArrayContainer != null)
             {
                 return xArrayContainer ^ yArrayContainer;
             }
@@ -96,7 +96,7 @@ namespace Collections.Special
         {
             var xArrayContainer = x as ArrayContainer;
             var yArrayContainer = y as ArrayContainer;
-            if ((xArrayContainer != null) && (yArrayContainer != null))
+            if (xArrayContainer != null && yArrayContainer != null)
             {
                 return ArrayContainer.AndNot(xArrayContainer, yArrayContainer);
             }
