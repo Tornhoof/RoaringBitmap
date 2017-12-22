@@ -30,16 +30,46 @@ namespace Collections.Special
 
         /// <summary>
         ///     see https://en.wikipedia.org/wiki/Hamming_weight
-        ///     Unfortunately there is no popcnt in c#
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int BitCount(ulong[] xArray)
         {
+#if NETCOREAPP2_1
+            if (System.Runtime.Intrinsics.X86.Popcnt.IsSupported && Environment.Is64BitProcess)
+            {
+                long longResult = 0;
+                var length = xArray.Length;
+                for (int i = 0; i + 3 <= length; i += 3)
+                {
+                    var p1 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i]);
+                    var p2 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 1]);
+                    var p3 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 2]);
+                    longResult += p1 + p2 + p3;
+                }
+
+                var remaining = length % 3;
+                if (remaining == 1)
+                {
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[length - 1]);
+
+                }
+                else if (remaining == 2)
+                {
+                    var p1 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[length - 1]);
+                    var p2 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[length - 2]);
+                    longResult += p1 + p2;
+                }
+
+                return (int) longResult;
+            }
+
+#endif
             var result = 0;
             for (var i = 0; i < xArray.Length; i++)
             {
                 result += BitCount(xArray[i]);
             }
+
             return result;
         }
 

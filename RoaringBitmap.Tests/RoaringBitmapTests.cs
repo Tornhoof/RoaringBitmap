@@ -566,5 +566,21 @@ namespace RoaringBitmap.Tests
             var rbList = rb2.ToList();
             Assert.Empty(rbList);
         }
+
+        [Fact]
+        public void BitCount()
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                var data = new ulong[i];
+                for (int j = 0; j < data.Length; j++)
+                {
+                    data[j] = 1;
+                }
+
+                var count = Collections.Special.Util.BitCount(data);
+                Assert.Equal(i, count);
+            }
+        }
     }
 }
