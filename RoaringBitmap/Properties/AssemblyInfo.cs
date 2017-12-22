@@ -17,4 +17,3 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
 [assembly: Guid("2ee1be04-a8f5-4358-bf08-e417d3916b49")]
-[assembly: InternalsVisibleTo("RoaringBitmap.Tests")]
