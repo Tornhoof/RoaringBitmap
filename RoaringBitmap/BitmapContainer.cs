@@ -159,10 +159,9 @@ namespace Collections.Special
                 long longResult = 0;
                 for (int i = 0; i + 3 <= BitmapLength; i += 3)
                 {
-                    var p1 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i] & y.m_Bitmap[i]);
-                    var p2 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 1] & y.m_Bitmap[i + 1]);
-                    var p3 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 2] & y.m_Bitmap[i + 2]);
-                    longResult += p1 + p2 + p3;
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i] & y.m_Bitmap[i]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 1] & y.m_Bitmap[i + 1]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 2] & y.m_Bitmap[i + 2]);
                 }
                 longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[BitmapLength - 1] & y.m_Bitmap[BitmapLength - 1]);
                 return (int) longResult;
@@ -249,10 +248,9 @@ namespace Collections.Special
                 long longResult = 0;
                 for (int i = 0; i + 3 <= BitmapLength; i += 3)
                 {
-                    var p1 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i] ^ y.m_Bitmap[i]);
-                    var p2 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 1] ^ y.m_Bitmap[i + 1]);
-                    var p3 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 2] ^ y.m_Bitmap[i + 2]);
-                    longResult += p1 + p2 + p3;
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i] ^ y.m_Bitmap[i]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 1] ^ y.m_Bitmap[i + 1]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[i + 2] ^ y.m_Bitmap[i + 2]);                    
                 }
 
                 longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(x.m_Bitmap[BitmapLength - 1] ^ y.m_Bitmap[BitmapLength - 1]);
@@ -453,10 +451,9 @@ namespace Collections.Special
                 long longResult = 0;
                 for (int i = 0; i + 3 <= BitmapLength; i += 3)
                 {
-                    var p1 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i]);
-                    var p2 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 1]);
-                    var p3 = System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 2]);
-                    longResult += p1 + p2 + p3;
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 1]);
+                    longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[i + 2]);
                 }
 
                 longResult += System.Runtime.Intrinsics.X86.Popcnt.PopCount(xArray[BitmapLength - 1]);
