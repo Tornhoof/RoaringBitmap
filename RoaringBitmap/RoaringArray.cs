@@ -379,8 +379,7 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            var ra = obj as RoaringArray;
-            return (ra != null) && Equals(ra);
+            return (obj is RoaringArray ra) && Equals(ra);
         }
 
         public override int GetHashCode()

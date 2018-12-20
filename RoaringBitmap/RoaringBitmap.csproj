@@ -13,15 +13,6 @@
     <Authors>RoaringBitmap Contributors</Authors>
     <Copyright>Copyright © RoaringBitmap Contributors 2017</Copyright>
     <Product>Roaring Bitmap</Product>
-    <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="System.Collections" Version="4.3.0" />
-    <PackageReference Include="System.Linq" Version="4.3.0" />
-    <PackageReference Include="System.Runtime" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
-    <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
-  </ItemGroup>
 </Project>

@@ -88,8 +88,7 @@ namespace Collections.Special
 
         public static Container operator ~(Container x)
         {
-            var xArrayContainer = x as ArrayContainer;
-            return xArrayContainer != null ? ~xArrayContainer : ~(BitmapContainer) x;
+            return x is ArrayContainer xArrayContainer ? ~xArrayContainer : ~(BitmapContainer) x;
         }
 
         public static Container AndNot(Container x, Container y)

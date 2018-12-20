@@ -260,8 +260,7 @@ namespace Collections.Special
 
         protected override bool EqualsInternal(Container other)
         {
-            var bc = other as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return (other is BitmapContainer bc) && Equals(bc);
         }
 
         public override IEnumerator<ushort> GetEnumerator()
@@ -299,8 +298,7 @@ namespace Collections.Special
 
         public override bool Equals(object obj)
         {
-            var bc = obj as BitmapContainer;
-            return (bc != null) && Equals(bc);
+            return (obj is BitmapContainer bc) && Equals(bc);
         }
 
         public override int GetHashCode()
