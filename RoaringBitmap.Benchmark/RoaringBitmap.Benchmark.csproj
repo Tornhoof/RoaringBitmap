@@ -22,7 +22,18 @@
 
 
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <None Include="..\real-roaring-dataset\census-income.zip" Link="Data\census-income.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\census-income_srt.zip" Link="Data\census-income_srt.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\census1881.zip" Link="Data\census1881.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\census1881_srt.zip" Link="Data\census1881_srt.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\dimension_003.zip" Link="Data\dimension_003.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\dimension_008.zip" Link="Data\dimension_008.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\dimension_033.zip" Link="Data\dimension_033.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\uscensus2000.zip" Link="Data\uscensus2000.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\weather_sept_85.zip" Link="Data\weather_sept_85.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\weather_sept_85_srt.zip" Link="Data\weather_sept_85_srt.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\wikileaks-noquotes.zip" Link="Data\wikileaks-noquotes.zip"  CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\real-roaring-dataset\wikileaks-noquotes_srt.zip" Link="Data\wikileaks-noquotes_srt.zip"  CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

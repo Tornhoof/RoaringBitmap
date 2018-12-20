@@ -3,16 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
     <PackageProjectUrl>https://github.com/Tornhoof/RoaringBitmap</PackageProjectUrl>
-    <PackageLicenseUrl>https://github.com/Tornhoof/RoaringBitmap/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>RoaringBitmap</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <RepositoryUrl>https://github.com/Tornhoof/RoaringBitmap</RepositoryUrl>
+    <RepositoryUrl>git://github.com/Tornhoof/RoaringBitmap</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <Version>0.9.1</Version>
     <Description>RoaringBitmap for .NET</Description>
     <Authors>RoaringBitmap Contributors</Authors>
     <Copyright>Copyright © RoaringBitmap Contributors 2017</Copyright>
     <Product>Roaring Bitmap</Product>
     <DisableImplicitFrameworkReferences>true</DisableImplicitFrameworkReferences>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,9 +24,4 @@
     <PackageReference Include="System.Runtime.Extensions" Version="4.3.0" />
     <PackageReference Include="System.Runtime.InteropServices" Version="4.3.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>
